@@ -4,7 +4,6 @@
 
 DWORD WINAPI main_thread(LPVOID lpParam)
 {
-    MessageBoxA(0, "wtf am i doing wrong", "debug", 0);
     while (!GetModuleHandleA("GameUI.dll"))
         Sleep(100);
 
