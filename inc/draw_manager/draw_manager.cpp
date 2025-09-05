@@ -2,7 +2,7 @@
 #include "tahoma.hpp"
 #include "verdana.hpp"
 #include "tahoma_bold.hpp"
-#include "imgui_freetype.h"
+#include <misc/freetype/imgui_freetype.h>
 #include "icons.hpp"
 #include "utils.hpp"
 #include <imgui_impl_dx9.h>

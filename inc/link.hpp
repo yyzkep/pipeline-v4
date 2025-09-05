@@ -41,7 +41,7 @@
 // 3rd party
 #include <imgui.h>
 #include <imgui_impl_dx9.h>
-#include <imgui_freetype.h>
+#include <misc/freetype/imgui_freetype.h>
 #include <imgui_impl_win32.h>
 #include <freetype/freetype.h>
 #include <safetyhook.hpp>
