@@ -4,10 +4,8 @@ open sourced pipeline
 
 ---
 
-- **License:** GNU v3.0.
 - **cheat is made by:** d3fine / drev.
   
----
 
 ## q&a
 
@@ -19,6 +17,9 @@ A2: at point of writing only a simple renderer test is there. only developer use
 
 **Q3: Are there any prerequisites?**  
 A3: a functioning brain, visual studio or clion.
+
+**Q4: Download?**
+A4: you fucking compile it you fucking moron(until i make nightly link)
 
 ---
 
