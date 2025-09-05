@@ -26,7 +26,7 @@ namespace utilities {
 
     inline void log(const std::string& str)
     {
-        std::cout << str.c_str();
+        std::cout << str.c_str() << "\n";
     };
 
     template <typename T>
