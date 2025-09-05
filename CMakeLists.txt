@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CPM.cmake)
 
-CPMAddPackage("gh:ocornut/imgui#master") # imgui
+CPMAddPackage("gh:ocornut/imgui@1.91.4") # imgui
 CPMAddPackage("gh:cursey/safetyhook@0.6.6") # hooking
 CPMAddPackage(
   NAME freetype
