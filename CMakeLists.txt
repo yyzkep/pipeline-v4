@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0) #aaa
+cmake_minimum_required(VERSION 3.28) #aaa
 project(pipeline LANGUAGES CXX)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
