@@ -125,7 +125,7 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 			ImFontConfig cfg{};
 			cfg.PixelSnapH = true;
 			cfg.OversampleH = cfg.OversampleV = 1;
-			cfg.Flags = ImGuiFreeType::ForceAutoHint | ImGuiFreeType::LightHinting;
+			cfg.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint | ImGuiFreeTypeBuilderFlags_LightHinting;
 			cfg.FontDataOwnedByAtlas = false;
 
 			utilities::log("[RenderStateManager] adding fonts...");
