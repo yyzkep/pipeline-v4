@@ -16,6 +16,7 @@ void c_ctx::tf2_t::get_interfaces() {
     check_interface(ctx.interfaces.surface, i_mat_system_surface, "vguimatsurface.dll", "VGUI_Surface030");
     check_interface(ctx.interfaces.trace, i_engine_trace, "engine.dll", "EngineTraceClient003");
     check_interface(ctx.interfaces.vgui, i_engine_vgui, "engine.dll", "VEngineVGui002");
+    //past was check_interface.. lmao
     check_interface_signature(ctx.interfaces.state, c_client_state, "engine.dll", "48 8D 0D ? ? ? ? E8 ? ? ? ? F3 0F 5E 05");
     check_interface_signature_dereferenced(ctx.interfaces.shared, client_mode_shared, "client.dll", "48 8B 0D ? ? ? ? 48 8B 10 48 8B 19 48 8B C8 FF 92", 1);
     check_interface(ctx.interfaces.pred, c_pred, "client.dll", "VClientPrediction001");
