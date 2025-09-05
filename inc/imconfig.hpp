@@ -1,0 +1,8 @@
+#pragma once
+
+#define IM_ASSERT( _EXPR ) ( ( void )( _EXPR ) )
+#define IMGUI_DISABLE_DEMO_WINDOWS
+#define IMGUI_DISABLE_DEBUG_TOOLS
+#define IMGUI_USE_WCHAR32
+#define IMGUI_ENABLE_FREETYPE
+#define IMGUI_DEFINE_MATH_OPERATORS
