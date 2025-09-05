@@ -37,7 +37,7 @@ void __fastcall hkPaint(void* rcx, paint_mode_t mode) {
 
     hooks.m_paint.fastcall<void>(rcx, mode);
 
-    if (mode == paint_mode_t::PAINT_UIPANELS) {
+    if (mode & paint_mode_t::PAINT_UIPANELS) {
         render_queue.string(FONTS::FONT_MENU, static_cast<int>(ctx.interfaces.client->get_screen_width() * 0.5f),
             5, color_t(255,255,255), Default, "pipeline v4");
 

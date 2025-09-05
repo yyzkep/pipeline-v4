@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.28) #aaa
 project(pipeline LANGUAGES CXX)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
+if (MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 include(CPM.cmake)
 
@@ -51,12 +52,26 @@ if(imgui_ADDED)
   )
 endif()
 
+if (MSVC)
+    set_target_properties(pipeline PROPERTIES
+        COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
+        COMPILE_PDB_NAME pipeline
+        PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
+        PDB_NAME pipeline
+    )
+endif()
+
 add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH)
 
 target_include_directories(pipeline PRIVATE inc)
 target_compile_definitions(pipeline PRIVATE NOMINMAX) # solves autism with std::max & std::min
 
-target_compile_options(pipeline PRIVATE -fpermissive) # fixes most if not all the fucking problems
+#autism
+if (MSVC)
+    target_compile_options(pipeline PRIVATE /permissive-)
+else()
+    target_compile_options(pipeline PRIVATE -fpermissive) 
+endif()
 
 
 target_link_libraries(pipeline
