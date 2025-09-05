@@ -51,6 +51,7 @@ if(imgui_ADDED)
   )
 endif()
 
+add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH)
 
 target_include_directories(pipeline PRIVATE inc)
 target_compile_definitions(pipeline PRIVATE NOMINMAX) # solves autism with std::max & std::min
