@@ -91,7 +91,7 @@ else()
   message(FATAL_ERROR "Build type is not supported.")
 endif()
 
-add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH)
+# add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH) was caused by matrix.hpp...
 
 target_include_directories(pipeline PRIVATE inc)
 target_compile_definitions(pipeline PRIVATE NOMINMAX) # solves autism with std::max & std::min
