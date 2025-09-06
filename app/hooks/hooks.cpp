@@ -41,7 +41,7 @@ void __fastcall hkPaint(void* rcx, paint_mode_t mode) {
 
     if (mode & paint_mode_t::PAINT_UIPANELS) {
         render_queue.string(FONTS::FONT_MENU, static_cast<int>(ctx.interfaces.client->get_screen_width() * 0.5f),
-            5, color_t(255,255,255), Center_X, "pipeline v4 | 'rei made you' fuck off");
+            5, color_t(255,255,255), horizontal, "pipeline v4 | 'rei made you' fuck off");
 
         render_queue.swap_commands();
     }
