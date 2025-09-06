@@ -15,7 +15,7 @@ enum text_align {
     vertical,
     reverse_horizontal,
     center,
-    default
+    normal
 };
 
 namespace FONTS {

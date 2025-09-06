@@ -280,7 +280,7 @@ void draw_commands_executor::draw_string(ImDrawList* list, ImFont* font, int x, 
 		f_x -= size.x;
 	}
 
-	if (align == text_align::default) {
+	if (align == text_align::normal) {
 		//do nothing
 	}
 
