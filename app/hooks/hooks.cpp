@@ -27,7 +27,7 @@ HRESULT  __fastcall hkPresent(IDirect3DDevice9* pDevice, const RECT* pSource,
 
 HRESULT __fastcall hkReset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) {
     ImGui_ImplDX9_InvalidateDeviceObjects();
-    ImGuiIO& io = GetIO();
+    ImGuiIO& io = ImGui::GetIO(); //oops
     io.Fonts->ClearFonts();
     auto return_result = hooks.m_reset.fastcall<HRESULT>(device, params);
     ImGui_ImplDX9_CreateDeviceObjects();
