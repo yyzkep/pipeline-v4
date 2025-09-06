@@ -13,6 +13,7 @@ public:
     SafetyHookInline m_present{};
     SafetyHookInline m_reset{};
     SafetyHookInline m_paint{};
+    SafetyHookInline m_createmove{}; //todo
 };
 
 inline c_hooks hooks = {};

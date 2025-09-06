@@ -143,7 +143,9 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 			FONTS::FONT_ICOMOON = try_add_font(icomoon, sizeof(icomoon), 20.0f, "font_icomoon", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON_WIDGET = try_add_font(icomoon_widget, sizeof(icomoon_widget), 15.0f, "font_icomoon_widget", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON_WIDGET2 = try_add_font(icomoon, sizeof(icomoon), 16.0f, "font_icomoon_widget2", io.Fonts->GetGlyphRangesCyrillic());
-
+			
+			//build the fucking fonts
+			io.Fonts->Build();
 			utilities::log("[RenderStateManager] font setup completed");
 			once = true;
 		}
@@ -226,7 +228,7 @@ void render_state_manager::backup_states(IDirect3DDevice9* device)
 	PixelState->Release();
 }
 
-
+//erm this is very familiar, because it is lmao, not denying anything
 void draw_commands_executor::draw_line(ImDrawList* list, int x1, int y1, int x2, int y2, color_t color)
 {
 	auto f_x1 = (float)x1;
@@ -262,23 +264,23 @@ void draw_commands_executor::draw_string(ImDrawList* list, ImFont* font, int x, 
 
 	ImVec2 size = ImGui::CalcTextSize(text.data(), nullptr, false);
 
-	if (align == text_align::Center_X) {
+	if (align == text_align::horizontal) {
 		f_x -= size.x / 2;
 	}
-	if (align == text_align::Center_Y) {
+	if (align == text_align::vertical) {
 		f_y -= size.y / 2;
 	}
 
-	if (align == text_align::Center_XY) {
+	if (align == text_align::center) {
 		f_x -= size.x / 2;
 		f_y -= size.y / 2;
 	}
 
-	if (align == text_align::Reverse_X) {
+	if (align == text_align::reverse_horizontal) {
 		f_x -= size.x;
 	}
 
-	if (align == text_align::Default) {
+	if (align == text_align::default) {
 		//do nothing
 	}
 

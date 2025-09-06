@@ -11,11 +11,11 @@
 #include "color.hpp"
 
 enum text_align {
-    Center_X,
-    Center_Y,
-    Reverse_X,
-    Center_XY,
-    Default
+    horizontal,
+    vertical,
+    reverse_horizontal,
+    center,
+    default
 };
 
 namespace FONTS {

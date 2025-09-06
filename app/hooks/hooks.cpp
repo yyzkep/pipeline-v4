@@ -27,6 +27,8 @@ HRESULT  __fastcall hkPresent(IDirect3DDevice9* pDevice, const RECT* pSource,
 
 HRESULT __fastcall hkReset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) {
     ImGui_ImplDX9_InvalidateDeviceObjects();
+    ImGuiIO& io = GetIO();
+    io.Fonts->ClearFonts();
     auto return_result = hooks.m_reset.fastcall<HRESULT>(device, params);
     ImGui_ImplDX9_CreateDeviceObjects();
     return return_result;
@@ -39,7 +41,7 @@ void __fastcall hkPaint(void* rcx, paint_mode_t mode) {
 
     if (mode & paint_mode_t::PAINT_UIPANELS) {
         render_queue.string(FONTS::FONT_MENU, static_cast<int>(ctx.interfaces.client->get_screen_width() * 0.5f),
-            5, color_t(255,255,255), Default, "pipeline v4");
+            5, color_t(255,255,255), Center_X, "pipeline v4 | 'rei made you' fuck off");
 
         render_queue.swap_commands();
     }
