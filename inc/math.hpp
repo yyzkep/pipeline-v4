@@ -130,9 +130,9 @@ namespace mathematics //genius naming ikr
 
 	inline void vector_transform(const vector_t& input, const matrix3x4_t& matrix, vector_t& output)
 	{
-		output[0] = dot_product(input, vector_t(matrix[0][0], matrix[0][1], matrix[0][2])) + matrix[0][3];
-		output[1] = dot_product(input, vector_t(matrix[1][0], matrix[1][1], matrix[1][2])) + matrix[1][3];
-		output[2] = dot_product(input, vector_t(matrix[2][0], matrix[2][1], matrix[2][2])) + matrix[2][3];
+		for (int i = 0; i < 3; i++) {
+			output[i] = dot_product(input, vector_t(matrix[i][0], matrix[i][1], matrix[i][2])) + matrix[i][3];
+		}
 	}
 
 

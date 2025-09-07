@@ -37,6 +37,73 @@ void c_ctx::tf2_t::grab_view_matrix()
     }
 }
 
+bool c_ctx::tf2_t::get_entity_bounds(base_entity* entity, int& x, int& y, int& w, int& h)
+{
+
+    const auto& mins = entity->mins();
+    const auto& maxs = entity->maxs();
+
+    //this might be retarded.
+    vector_t points[8] = {
+        vector_t(mins.x, mins.y, mins.z),
+        vector_t(mins.x, maxs.y, mins.z),
+        vector_t(maxs.x, maxs.y, mins.z),
+        vector_t(maxs.x, mins.y, mins.z),
+        vector_t(maxs.x, maxs.y, maxs.z),
+        vector_t(mins.x, maxs.y, maxs.z),
+        vector_t(mins.x, mins.y, maxs.z),
+        vector_t(maxs.x, mins.y, maxs.z)
+    };
+
+    //static_cast and neither reinterpret_cast but fucking c style works? wtf.
+    auto& transform = (matrix3x4_t&)(entity->renderable_to_world_transform());
+
+    //fix camera warps by local player.
+    if (entity && entity == ctx.entities.local_player) {
+        auto angles = ctx.interfaces.engine->get_view_angles();
+
+        angles.x = angles.z = 0.0f;
+
+        mathematics::angle_matrix(angles, transform);
+
+        mathematics::matrix_set_column(entity->get_render_origin(), 3, transform);
+    }
+
+    auto left = std::numeric_limits< float >::max();
+    auto top = std::numeric_limits< float >::max();
+    auto right = std::numeric_limits< float >::lowest();
+    auto bottom = std::numeric_limits< float >::lowest();
+
+    vector_t screen[8] = {};
+
+    vector_t* vec_out = {};
+    
+    for (std::size_t i = 0; i < 8; i++) {
+        mathematics::vector_transform(points[i], transform, vec_out[i]);
+        if (!w2s(vec_out[i], screen[i]))
+        {
+            return false;
+        }
+
+        left = std::min(left, screen[i].x);
+        top = std::min(top, screen[i].y);
+        right = std::max(right, screen[i].x);
+        bottom = std::max(bottom, screen[i].y);
+    }
+
+    auto x_ = left;
+    auto y_ = top;
+    auto w_ = right - left;
+    auto h_ = bottom - top;
+
+    x = static_cast<int>(x_);
+    y = static_cast<int>(y_);
+    w = static_cast<int>(w_);
+    h = static_cast<int>(h_);
+
+    return true;
+}
+
 bool c_ctx::tf2_t::w2s(const Vector& origin, Vector& screen)
 {
     const auto screenTransform = [&origin, &screen, this]() -> bool

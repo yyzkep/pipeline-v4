@@ -106,6 +106,7 @@ public:
         void get_interfaces();
         void grab_view_matrix();
         bool w2s(const vector_t& origin, vector_t& screen);
+        bool get_entity_bounds(base_entity* entity, int& x, int& y, int& w, int& h);
         D3DMATRIX w2s_matrix;
     } tf2;
 };
