@@ -6,10 +6,7 @@
 // forward declarations
 struct q_angle_t;
 
-//so this was causing the shit to fuck up, fuck this shit like genuileyl
-#pragma pack(push, 4)
 using matrix3x3_t = float[3][3];
-#pragma pack(pop)
 
 struct matrix3x4_t
 {

@@ -52,44 +52,9 @@ if(imgui_ADDED)
   )
 endif()
 
-if (MSVC)
-    set_target_properties(pipeline PROPERTIES
-        COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
-        COMPILE_PDB_NAME pipeline
-        PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
-        PDB_NAME pipeline
-    )
-
-endif()
-
 #I DONT FUCKING CARE ANYMORE IM FUCKING GOING FUCKING INSANE FUCKING FUCKING FUCKING SHIT
 #I ACTUALLY FUCKING HATE DEBUGGING SHIT
 #AAAAAAAAAAAAAAAAAAA
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  target_compile_definitions(pipeline PRIVATE
-    NOMINMAX  
-  )
-  target_compile_options(pipeline PRIVATE
-    /Od /Zi /MTd /arch:AVX
-  )
-elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  target_compile_definitions(pipeline PRIVATE
-    NOMINMAX NDEBUG 
-  )
-  target_compile_options(pipeline PRIVATE
-    /O2 /Zi /MT /arch:AVX
-  )
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-  target_compile_definitions(pipeline PRIVATE
-    NOMINMAX NDEBUG
-  )
-  target_compile_options(pipeline PRIVATE
-    /O2 /MT /arch:AVX
-  )
-else()
-  message(FATAL_ERROR "Build type is not supported.")
-endif()
 
 # add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH) was caused by matrix.hpp...
 

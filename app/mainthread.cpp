@@ -4,17 +4,26 @@
 
 DWORD WINAPI main_thread(LPVOID lpParam)
 {
+    //GameUI is the last module to be loaded in tf2.
     while (!GetModuleHandleA("GameUI.dll"))
         Sleep(100);
 
     //grab interfaces
     ctx.tf2.get_interfaces();
 
-    //hook
+    //load every hook and hook it ofc ofc
     hookmgr.load_hooks();
 
+    //play audio saying that we loaded
+    ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_attached14.mp3"); //baller refrence to legendary cheat. 
+
+    //we're done with our shit go sleep
     while (!GetAsyncKeyState(VK_DELETE)) Sleep(100);
 
+    //hehe
+    ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_hacked02.mp3");
+
+    //remove the fucking hook
     hookmgr.remove_hooks();
 
     FreeConsole();

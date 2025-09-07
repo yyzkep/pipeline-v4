@@ -1,10 +1,10 @@
 #include "draw_manager.hpp"
 #include "tahoma.hpp"
-#include "verdana.hpp"
 #include "tahoma_bold.hpp"
 #include <misc/freetype/imgui_freetype.h>
 #include "icons.hpp"
 #include "utils.hpp"
+#include "link.hpp"
 #include <imgui_impl_dx9.h>
 #include <imgui_impl_win32.h>
 
@@ -126,9 +126,14 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 			cfg.PixelSnapH = true;
 			cfg.OversampleH = cfg.OversampleV = 1;
 			cfg.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint | ImGuiFreeTypeBuilderFlags_LightHinting;
+			
+			if (cfg.FontDataOwnedByAtlas = false) {
+				utilities::log("[RenderStateManager] set FontDataOwnedByAtlas to false.");
+			}
 
 			utilities::log("[RenderStateManager] adding fonts...");
 
+			//the way the compiler did this is so fucking funny
 			auto try_add_font = [&](auto font_data, int size, float font_size, const char* font_name, const ImWchar* glyph_ranges) -> ImFont* {
 				ImFont* font = io.Fonts->AddFontFromMemoryTTF(font_data, size, font_size, &cfg, glyph_ranges);
 				if (!font)
@@ -136,16 +141,14 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 				return font;
 				};
 
-			FONTS::FONT_ESP = try_add_font(verdana, sVerdana, 13.0f, "font_esp", io.Fonts->GetGlyphRangesDefault());
-			FONTS::FONT_INDICATORS = try_add_font(verdana, sVerdana, 12.0f, "font_indicators", io.Fonts->GetGlyphRangesDefault());
-			FONTS::FONT_MENU_TABS = try_add_font(verdana, sVerdana, 12.0f, "font_menu_tabs", io.Fonts->GetGlyphRangesDefault());
-			FONTS::FONT_MENU = try_add_font(verdana, sVerdana, 10.0f, "font_menu", io.Fonts->GetGlyphRangesDefault());
+			FONTS::FONT_ESP = try_add_font(tahoma, sTahoma, 13.0f, "font_esp", io.Fonts->GetGlyphRangesDefault());
+			FONTS::FONT_INDICATORS = try_add_font(tahoma, sTahoma, 12.0f, "font_indicators", io.Fonts->GetGlyphRangesDefault());
+			FONTS::FONT_MENU_TABS = try_add_font(tahoma, sTahoma, 12.0f, "font_menu_tabs", io.Fonts->GetGlyphRangesDefault());
+			FONTS::FONT_MENU = try_add_font(tahoma, sTahoma, 10.0f, "font_menu", io.Fonts->GetGlyphRangesDefault());
 			FONTS::FONT_ICOMOON = try_add_font(icomoon, sizeof(icomoon), 20.0f, "font_icomoon", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON_WIDGET = try_add_font(icomoon_widget, sizeof(icomoon_widget), 15.0f, "font_icomoon_widget", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON_WIDGET2 = try_add_font(icomoon, sizeof(icomoon), 16.0f, "font_icomoon_widget2", io.Fonts->GetGlyphRangesCyrillic());
 			
-			//build the fucking fonts
-			io.Fonts->Build();
 			utilities::log("[RenderStateManager] font setup completed");
 			once = true;
 		}
@@ -189,6 +192,12 @@ void render_state_manager::end()
 //setup device states for that color correction
 void render_state_manager::setup_states(IDirect3DDevice9* device)
 {
+	/* 
+	yes imgui does set all of these states below
+	but im also setting the color correction one
+	because fuck imgui
+	*/
+
 	device->CreateStateBlock(D3DSBT_ALL, &PixelState);
 
 	PixelState->Capture();
@@ -343,19 +352,19 @@ void render_command_queue::render(ImDrawList* list)
 
 	for (auto&& cmds : m_safe_cmds) {
 		if (auto* string = std::get_if<string_t>(&cmds)) {
-			command_executor.draw_string(list, string->font, string->x, string->y, string->col, string->align, string->input);
+			ctx.renderer.command_executor.draw_string(list, string->font, string->x, string->y, string->col, string->align, string->input);
 		}
 		if (auto* rect = std::get_if<rect_t>(&cmds)) {
-			command_executor.draw_rect(list, rect->x, rect->y, rect->w, rect->h, rect->col);
+			ctx.renderer.command_executor.draw_rect(list, rect->x, rect->y, rect->w, rect->h, rect->col);
 		}
 		if (auto* filledrect = std::get_if<filledrect_t>(&cmds)) {
-			command_executor.draw_filled_rect(list, filledrect->x, filledrect->y, filledrect->w, filledrect->h, filledrect->col);
+			ctx.renderer.command_executor.draw_filled_rect(list, filledrect->x, filledrect->y, filledrect->w, filledrect->h, filledrect->col);
 		}
 		if (auto* line = std::get_if<line_t>(&cmds)) {
-			command_executor.draw_line(list, line->x1, line->y1, line->x2, line->y2, line->col);
+			ctx.renderer.command_executor.draw_line(list, line->x1, line->y1, line->x2, line->y2, line->col);
 		}
 		if (auto* circle = std::get_if<circle_t>(&cmds)) {
-			command_executor.draw_cirlce(list, circle->x, circle->y, circle->radius, circle->col);
+			ctx.renderer.command_executor.draw_cirlce(list, circle->x, circle->y, circle->radius, circle->col);
 		}
 	}
 }

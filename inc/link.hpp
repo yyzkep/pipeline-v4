@@ -96,6 +96,12 @@ public:
         base_combat_weapon* local_weapon = nullptr;
     } entities;
 
+    struct renderer_t {
+        render_state_manager state_manager{};
+        draw_commands_executor command_executor{};
+        render_command_queue render_queue{};
+    } renderer;
+
     struct tf2_t {
         void get_interfaces();
         void grab_view_matrix();

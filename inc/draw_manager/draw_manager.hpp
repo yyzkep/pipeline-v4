@@ -1,5 +1,5 @@
 #pragma once
-
+#include "imconfig.hpp"
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <d3d9.h>
 #include <mutex>
@@ -96,6 +96,3 @@ public:
     void filled_rect(int x, int y, int w, int h, color_t color);
 };
 
-inline render_state_manager state_manager{};
-inline draw_commands_executor command_executor{};
-inline render_command_queue render_queue{};
