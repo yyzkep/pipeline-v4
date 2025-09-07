@@ -4,6 +4,8 @@ project(pipeline LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>")
+
 if (MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
@@ -59,27 +61,35 @@ endif()
 # add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH) was caused by matrix.hpp...
 
 if(MSVC)
-    set_target_properties(pipeline PROPERTIES
-        COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
-        COMPILE_PDB_NAME pipeline
-        PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
-        PDB_NAME pipeline
+       set_target_properties(pipeline PROPERTIES
+        COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/compile_pdb
+        COMPILE_PDB_NAME "pipeline"
+        PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/link_pdb
+        PDB_NAME "pipeline"
     )
+endif()
+
+if(MSVC)
+    set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdbs)
+
+     target_compile_options(pipeline PRIVATE
+        $<$<CONFIG:Debug>:/Zi /Od>
+        $<$<CONFIG:RelWithDebInfo>:/Zi /O2>
+    )
+    
+    target_link_options(pipeline PRIVATE
+        $<$<CONFIG:Debug,RelWithDebInfo>:/DEBUG /INCREMENTAL:NO>
+    )
+    
+    set_target_properties(pipeline PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>"
+        VS_DEBUGGER_ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}/$<CONFIG>;%PATH%"
+    )
+
 endif()
 
 target_include_directories(pipeline PRIVATE inc)
 target_compile_definitions(pipeline PRIVATE NOMINMAX) # solves autism with std::max & std::min
-
-set(CMAKE_CXX_FLAGS_DEBUG "-g")  # Add debug symbols
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-g")  # Link with debug symbols
-
-#autism
-if (MSVC)
-    target_compile_options(pipeline PRIVATE /permissive-)
-else()
-    target_compile_options(pipeline PRIVATE -fpermissive) 
-endif()
-
 
 target_link_libraries(pipeline
   safetyhook::safetyhook 

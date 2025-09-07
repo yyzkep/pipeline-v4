@@ -88,7 +88,7 @@ public:
 	}
 	void get_matrices_for_view(const c_view_setup& view, D3DMATRIX* pWorldToView, D3DMATRIX* pViewToProjection, D3DMATRIX* pWorldToProjection, D3DMATRIX* pWorldToPixels)
 	{
-		utilities::find_vfunc<58, void, const c_view_setup&, D3DMATRIX*, D3DMATRIX*, D3DMATRIX*, D3DMATRIX*>(this, view, pWorldToView, pViewToProjection, pWorldToProjection, pWorldToPixels);
+		utilities::find_vfunc<50, void, const c_view_setup&, D3DMATRIX*, D3DMATRIX*, D3DMATRIX*, D3DMATRIX*>(this, view, pWorldToView, pViewToProjection, pWorldToProjection, pWorldToPixels);
 	}
 	inline void set_color_modulation(float r, float g, float b)
 	{
