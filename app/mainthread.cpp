@@ -3,6 +3,8 @@
 #include "hooks/hooks.hpp"
 #include "../inc/crashlog.hpp" // did this so that i dont have to attach a debugger.
 
+static bool close_from_dll = false;
+
 DWORD WINAPI main_thread(LPVOID lpParam)
 {
     //GameUI is the last module to be loaded in tf2.
@@ -36,6 +38,8 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     //we're done with our shit go sleep
     while (!GetAsyncKeyState(VK_DELETE)) Sleep(100);
 
+    close_from_dll = true;
+
     //hehe
     ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_hacked02.mp3");
 
@@ -56,6 +60,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     {
         if (const auto hMainThread = CreateThread(nullptr, 0, main_thread, hinstDLL, 0, nullptr)) {
             CloseHandle(hMainThread);
+        }
+    }
+
+    if (fdwReason == DLL_PROCESS_DETACH) {
+        if (!close_from_dll) {
+            //only do this if we arennt detaching too early, to not cause program crash due to access violation.
+            if(ctx.interfaces.engine)
+                ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_hacked02.mp3");
+            hookmgr.remove_hooks();
+            crashlog.unload();
+            FreeConsole();
+            FreeLibraryAndExitThread(hinstDLL, EXIT_SUCCESS);
         }
     }
 
