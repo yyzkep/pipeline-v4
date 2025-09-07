@@ -30,9 +30,9 @@ void c_ctx::tf2_t::grab_view_matrix()
     static c_view_setup view = {};
 
     if (ctx.interfaces.client->get_player_view(view)) {
-        static D3DMATRIX w1;
-        static D3DMATRIX w2;
-        static D3DMATRIX w3;
+        static D3DMATRIX w1 = {};
+        static D3DMATRIX w2 = {};
+        static D3DMATRIX w3 = {};
         ctx.interfaces.render_view->get_matrices_for_view(view, &w1, &w2, &w2s_matrix, &w3);
     }
 }

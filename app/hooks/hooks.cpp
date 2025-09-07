@@ -8,11 +8,11 @@
 template <typename T> using com_ptr = Microsoft::WRL::ComPtr<T>;
 
 HRESULT  __fastcall hkPresent(IDirect3DDevice9* pDevice, const RECT* pSource,
-    const RECT* pDestination, const RGNDATA* pDirtyRegion) {
+    const RECT* pDestination, HWND hWindow, const RGNDATA* pDirtyRegion) {
     ctx.renderer.state_manager.setup(pDevice);
 
     //imgui does set all of the previous states set here, 
-    // but i c&pasted one more state that does the color correction
+    //but i c&pasted one more state that does the color correction
     //so that checks out
     ctx.renderer.state_manager.setup_states(pDevice);
 
@@ -27,7 +27,7 @@ HRESULT  __fastcall hkPresent(IDirect3DDevice9* pDevice, const RECT* pSource,
     ctx.renderer.state_manager.end();
     ctx.renderer.state_manager.backup_states(pDevice);
 
-    return hooks.m_present.fastcall<HRESULT>(pDevice, pSource, pDestination, pDirtyRegion);
+    return hooks.m_present.fastcall<HRESULT>(pDevice, pSource, pDestination, hWindow, pDirtyRegion);
 }
 
 HRESULT __fastcall hkReset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) {
@@ -38,7 +38,7 @@ HRESULT __fastcall hkReset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* para
 }
 
 void __fastcall hkPaint(void* rcx, paint_mode_t mode) {
-    ctx.tf2.grab_view_matrix();
+    //ctx.tf2.grab_view_matrix();
 
     hooks.m_paint.fastcall<void>(rcx, mode);
 
@@ -69,17 +69,15 @@ void c_hooks::init() {
         d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params,
                            &d3d_device);
 
-        m_present = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 17), hkPresent);
+        m_present = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 17), reinterpret_cast<void*>(hkPresent));
 
-        m_reset = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 16), hkReset);
-
-        d3d_device.Reset();
-        d3d9.Reset();
+        m_reset = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 16), reinterpret_cast<void*>(hkReset));
     }
+
     //the benefits of hooking IVEngineVGUI::Paint over FSN::FRAME_START is that paint is called way after frame start, 
     // which is literally the start of the frame...
     //paint gives us latest data that is isnt rendered in frame_start.
-    m_paint = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.vgui, 14), hkPaint);
+    m_paint = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.vgui, 14), reinterpret_cast<void*>(hkPaint));
 }
 
 void c_hooks::shutdown() {

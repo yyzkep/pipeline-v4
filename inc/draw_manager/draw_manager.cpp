@@ -7,6 +7,7 @@
 #include "link.hpp"
 #include <imgui_impl_dx9.h>
 #include <imgui_impl_win32.h>
+#include "verdana.hpp"
 
 using namespace ImGui;
 static bool once = false;
@@ -25,108 +26,13 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 
 			utilities::log("[RenderStateManager] initialized imgui");
 
-			//StyleColorsDark();
-			ImGuiStyle& style = ImGui::GetStyle();
-			style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);					// primtv 0
-			style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.75f, 0.75f, 0.75f, 0.85f);			// primtv 2
-			style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.22f, 0.00f, 0.40f, 0.85f);			// accent 1
-
-			style.Colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);				// primtv 3
-			style.Colors[ImGuiCol_ChildBg] = ImVec4(0.08f, 0.08f, 0.12f, 0.60f);				// primtv 1
-			style.Colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.12f, 0.85f);				// primtv 1
-
-			style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.10f);					// primtv 4
-			style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);			// clear
-
-			style.Colors[ImGuiCol_FrameBg] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);				// primtv 3
-			style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.22f, 0.00f, 0.40f, 1.00f);			// accent 1
-			style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);			// accent 0
-
-			//style.Colors[ImGuiCol_ControlBg] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);				// primtv 3
-			//style.Colors[ImGuiCol_ControlBgHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);		// primtv 5
-			//style.Colors[ImGuiCol_ControlBgActive] = ImVec4(0.75f, 0.75f, 0.75f, 0.10f);		// primtv 2
-
-			style.Colors[ImGuiCol_TitleBg] = ImVec4(0.55f, 0.15f, 0.90f, 0.20f);				// accent 0
-			style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.22f, 0.00f, 0.40f, 0.50f);			// accent 1
-			style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.22f, 0.00f, 0.40f, 0.20f);		// accent 1
-
-			style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.08f, 0.08f, 0.12f, 0.70f);				// primtv 1
-
-			style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.11f, 0.14f, 0.20f, 0.30f);			// primtv 3
-			style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.30f, 0.20f, 0.40f, 1.00f);			// accent 3
-			style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.30f, 0.30f, 0.30f, 0.90f);	// primtv 5
-			style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.75f, 0.75f, 0.75f, 0.10f);	// primtv 2
-
-			style.Colors[ImGuiCol_CheckMark] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
-
-			style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
-			style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.22f, 0.00f, 0.40f, 1.00f);		// accent 1
-
-			style.Colors[ImGuiCol_Button] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);					// primtv 3
-			style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);			// primtv 5
-			style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);			// accent 0
-
-			style.Colors[ImGuiCol_Header] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);					// accent 0
-			style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);			// primtv 5
-			style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);			// primtv 3
-
-			style.Colors[ImGuiCol_Separator] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);				// primtv 3
-			style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);		// primtv 5
-			style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);		// accent 0
-
-			style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
-			style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.30f, 0.30f, 0.30f, 0.70f);		// primtv 5
-			style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.22f, 0.00f, 0.40f, 1.00f);		// accent 1
-
-			style.Colors[ImGuiCol_Tab] = ImVec4(0.08f, 0.08f, 0.12f, 0.80f);					// primtv 1
-			style.Colors[ImGuiCol_TabHovered] = ImVec4(0.30f, 0.30f, 0.30f, 0.80f);				// primtv 5
-			style.Colors[ImGuiCol_TabActive] = ImVec4(0.55f, 0.15f, 0.90f, 0.70f);				// accent 0
-			style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.30f, 0.30f, 0.30f, 0.70f);			// primtv 5
-			style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.55f, 0.15f, 0.90f, 0.60f);		// accent 0
-
-			style.Colors[ImGuiCol_PlotLines] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
-			style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.55f, 0.15f, 0.90f, 0.50f);		// accent 0
-			style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);			// accent 0
-			style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.55f, 0.15f, 0.90f, 0.50f);	// accent 0
-
-			style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.30f, 0.20f, 0.40f, 0.80f);			// accent 3
-			//style.Colors[ImGuiCol_Triangle] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
-
-			style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.25f);		// primtv 4
-
-			style.Alpha = 1.0f;
-			style.WindowPadding = ImVec2(8, 8);
-			style.WindowRounding = 4.0f;
-			style.WindowBorderSize = 1.0f;
-			style.WindowMinSize = ImVec2(32, 32);
-			style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
-			style.ChildRounding = 4.0f;
-			style.ChildBorderSize = 1.0f;
-			style.PopupRounding = 4.0f;
-			style.PopupBorderSize = 1.0f;
-			style.FramePadding = ImVec2(4, 2);
-			style.FrameRounding = 2.0f;
-			style.FrameBorderSize = 1.0f;
-			style.ItemSpacing = ImVec2(8, 4);
-			style.ItemInnerSpacing = ImVec2(4, 4);
-			style.IndentSpacing = 6.0f;
-			style.ColumnsMinSpacing = 6.0f;
-			style.ScrollbarSize = 6.0f;
-			style.ScrollbarRounding = 9.0f;
-			style.GrabMinSize = 0.0f;
-			style.GrabRounding = 4.0f;
-			style.TabRounding = 4.0f;
-			style.TabBorderSize = 1.0f;
-			style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
-			style.SelectableTextAlign = ImVec2(0.0f, 0.5f);
-			style.MouseCursorScale = 0.75f;
-
+			StyleColorsDark();
 			ImGuiIO& io = GetIO();
 			ImFontConfig cfg{};
 			cfg.PixelSnapH = true;
 			cfg.OversampleH = cfg.OversampleV = 1;
-			cfg.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint | ImGuiFreeTypeBuilderFlags_LightHinting;
-			
+			cfg.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint | ImGuiFreeTypeBuilderFlags_LoadColor | ImGuiFreeTypeBuilderFlags_Bitmap;
+		
 			cfg.FontDataOwnedByAtlas = false;
 			
 
@@ -140,10 +46,11 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 				return font;
 				};
 
-			FONTS::FONT_ESP = try_add_font(tahoma, sTahoma, 13.0f, "font_esp", io.Fonts->GetGlyphRangesDefault());
-			FONTS::FONT_INDICATORS = try_add_font(tahoma, sTahoma, 12.0f, "font_indicators", io.Fonts->GetGlyphRangesDefault());
-			FONTS::FONT_MENU_TABS = try_add_font(tahoma, sTahoma, 12.0f, "font_menu_tabs", io.Fonts->GetGlyphRangesDefault());
-			FONTS::FONT_MENU = try_add_font(tahoma, sTahoma, 10.0f, "font_menu", io.Fonts->GetGlyphRangesDefault());
+			//i cant and will not be bothered to give a fuck about verdana being a byte array.
+			FONTS::FONT_ESP = try_add_font(verdana, sVerdana, 13.0f, "font_esp", io.Fonts->GetGlyphRangesCyrillic());
+			FONTS::FONT_INDICATORS = try_add_font(verdana, sVerdana, 12.0f, "font_indicators", io.Fonts->GetGlyphRangesCyrillic());
+			FONTS::FONT_MENU_TABS = try_add_font(verdana, sVerdana, 12.0f, "font_menu_tabs", io.Fonts->GetGlyphRangesCyrillic());
+			FONTS::FONT_MENU = try_add_font(verdana, sVerdana, 10.0f, "font_menu", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON = try_add_font(icomoon, sizeof(icomoon), 20.0f, "font_icomoon", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON_WIDGET = try_add_font(icomoon_widget, sizeof(icomoon_widget), 15.0f, "font_icomoon_widget", io.Fonts->GetGlyphRangesCyrillic());
 			FONTS::FONT_ICOMOON_WIDGET2 = try_add_font(icomoon, sizeof(icomoon), 16.0f, "font_icomoon_widget2", io.Fonts->GetGlyphRangesCyrillic());
@@ -172,8 +79,8 @@ void render_state_manager::shutdown()
 //starting to render the frame
 void render_state_manager::start()
 {
-	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
 	NewFrame();
 }
 

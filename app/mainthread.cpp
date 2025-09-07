@@ -10,11 +10,25 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     while (!GetModuleHandleA("GameUI.dll"))
         Sleep(100);
 
+    //alloc console
+    AllocConsole();
+    FILE* fDummy;
+    freopen_s(&fDummy, "CONOUT$", "w", stdout);
+    freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    freopen_s(&fDummy, "CONIN$", "r", stdin);
+    SetConsoleTitleA("debug");
+
     //grab interfaces
     ctx.tf2.get_interfaces();
 
     //load every hook and hook it ofc ofc
     hookmgr.load_hooks();
+
+    //sleep to make sure we can tab back in time to hear it lol
+    Sleep(2500);
+
+    //log that we loaded
+    utilities::log("[hack] locked tf in");
 
     //play audio saying that we loaded
     ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_attached14.mp3"); //baller refrence to legendary cheat. 
@@ -40,14 +54,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     DisableThreadLibraryCalls(hinstDLL);
     if (fdwReason == DLL_PROCESS_ATTACH)
     {
-        //alloc console
-        AllocConsole();
-        FILE* fDummy;
-        freopen_s(&fDummy, "CONOUT$", "w", stdout);
-        freopen_s(&fDummy, "CONOUT$", "w", stderr);
-        freopen_s(&fDummy, "CONIN$",  "r", stdin);
-        SetConsoleTitleA("debug");
-
         if (const auto hMainThread = CreateThread(nullptr, 0, main_thread, hinstDLL, 0, nullptr)) {
             CloseHandle(hMainThread);
         }
