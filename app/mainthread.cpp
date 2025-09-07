@@ -1,10 +1,12 @@
 #include <iostream>
 #include "../inc/link.hpp"
 #include "hooks/hooks.hpp"
+#include "../inc/crashlog.hpp" // did this so that i dont have to attach a debugger.
 
 DWORD WINAPI main_thread(LPVOID lpParam)
 {
     //GameUI is the last module to be loaded in tf2.
+    crashlog.initialize();
     while (!GetModuleHandleA("GameUI.dll"))
         Sleep(100);
 
@@ -27,6 +29,8 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     hookmgr.remove_hooks();
 
     FreeConsole();
+
+    crashlog.unload();
 
     FreeLibraryAndExitThread(static_cast<HMODULE>(lpParam), EXIT_SUCCESS);
 }
