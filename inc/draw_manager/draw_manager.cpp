@@ -127,9 +127,8 @@ void render_state_manager::setup(IDirect3DDevice9* device)
 			cfg.OversampleH = cfg.OversampleV = 1;
 			cfg.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint | ImGuiFreeTypeBuilderFlags_LightHinting;
 			
-			if (cfg.FontDataOwnedByAtlas = false) {
-				utilities::log("[RenderStateManager] set FontDataOwnedByAtlas to false.");
-			}
+			cfg.FontDataOwnedByAtlas = false;
+			
 
 			utilities::log("[RenderStateManager] adding fonts...");
 
@@ -173,15 +172,15 @@ void render_state_manager::shutdown()
 //starting to render the frame
 void render_state_manager::start()
 {
-	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
+	ImGui_ImplDX9_NewFrame();
 	NewFrame();
 }
 
 //ending the frame
 void render_state_manager::end()
 {
-	ImGui::EndFrame();
+	
 	ImGui::Render();
 
 	ImDrawData* draw_data = GetDrawData();

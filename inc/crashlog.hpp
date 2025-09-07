@@ -74,8 +74,8 @@ static std::deque<frame_t> stack_trace(PCONTEXT context) {
         auto symbol = PIMAGEHLP_SYMBOL64(buf);
         symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64) + 255;
         symbol->MaxNameLength = 254;
-        DWORD sym_offset = 0;
-        if (SymGetSymFromAddr64(process, frame.address, &sym_offset, symbol))
+        PDWORD64 sym_offset = 0;
+        if (SymGetSymFromAddr64(process, frame.address, sym_offset, symbol))
             frame.name = symbol->Name;
 
         trace.push_back(frame);

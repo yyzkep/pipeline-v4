@@ -72,6 +72,9 @@ void c_hooks::init() {
         m_present = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 17), hkPresent);
 
         m_reset = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 16), hkReset);
+
+        d3d_device.Reset();
+        d3d9.Reset();
     }
     //the benefits of hooking IVEngineVGUI::Paint over FSN::FRAME_START is that paint is called way after frame start, 
     // which is literally the start of the frame...

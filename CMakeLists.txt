@@ -58,8 +58,20 @@ endif()
 
 # add_definitions(-DWINDOWS_IGNORE_PACKING_MISMATCH) was caused by matrix.hpp...
 
+if(MSVC)
+    set_target_properties(pipeline PROPERTIES
+        COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
+        COMPILE_PDB_NAME pipeline
+        PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pdb
+        PDB_NAME pipeline
+    )
+endif()
+
 target_include_directories(pipeline PRIVATE inc)
 target_compile_definitions(pipeline PRIVATE NOMINMAX) # solves autism with std::max & std::min
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g")  # Add debug symbols
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-g")  # Link with debug symbols
 
 #autism
 if (MSVC)
