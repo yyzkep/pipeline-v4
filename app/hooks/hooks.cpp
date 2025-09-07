@@ -38,7 +38,7 @@ HRESULT __fastcall hkReset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* para
 }
 
 void __fastcall hkPaint(void* rcx, paint_mode_t mode) {
-    //ctx.tf2.grab_view_matrix();
+    ctx.tf2.grab_view_matrix();
 
     hooks.m_paint.fastcall<void>(rcx, mode);
 
