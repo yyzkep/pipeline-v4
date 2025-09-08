@@ -2,6 +2,7 @@
 #include "../inc/link.hpp"
 #include "hooks/hooks.hpp"
 #include "../inc/crashlog.hpp" // did this so that i dont have to attach a debugger.
+#include "features/config.hpp"
 
 static bool close_from_dll = false;
 
@@ -26,6 +27,8 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     //load every hook and hook it ofc ofc
     hookmgr.load_hooks();
 
+    config::load_config("default");
+
     //sleep to make sure we can tab back in time to hear it lol
     Sleep(2500);
 
@@ -37,6 +40,10 @@ DWORD WINAPI main_thread(LPVOID lpParam)
 
     //we're done with our shit go sleep
     while (!GetAsyncKeyState(VK_DELETE)) Sleep(100);
+
+    //auto-save
+    if(config::auto_save)
+        config::save_config("default");
 
     close_from_dll = true;
 
