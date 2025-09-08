@@ -3,7 +3,7 @@
 #include "color.hpp"
 
 namespace config {
-    struct esp_players {
+    inline struct esp_players {
         bool active = false;
         bool name = false;
         bool box = false;
