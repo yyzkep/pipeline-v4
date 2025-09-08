@@ -20,7 +20,7 @@ A3: a functioning brain, visual studio or clion.
 
 **Q4: Download?**
 
-A4: you fucking compile it you fucking moron(until i make nightly link)
+A4: its on the releases tab, it says very old but the dll is new.
 
 ---
 
