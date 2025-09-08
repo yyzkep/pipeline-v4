@@ -4,7 +4,7 @@ open sourced pipeline
 
 ---
 
-- **cheat is made by:** d3fine / drev.
+- **cheat is made by:** d3fine
   
 
 ## q&a
@@ -13,13 +13,12 @@ open sourced pipeline
 A1: because i was already going to make it free2cheat, figured why make it not open source? 
 
 **Q2: How do i inject it?**  
-A2: at point of writing only a simple renderer test is there. only developer use for now, inject it, dont complain fucking hell
+A2: using Xenos or Process Hacker
 
 **Q3: Are there any prerequisites?**  
 A3: a functioning brain, visual studio or clion.
 
 **Q4: Download?**
-
 A4: its on the releases tab, it says very old but the dll is new.
 
 ---
