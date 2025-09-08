@@ -1,9 +1,11 @@
-#pragma once 
-#include "config_system\config_system.hpp"
+#pragma once
+#include "config_system/config_system.hpp"
 #include "color.hpp"
 
-namespace config {
-    inline struct esp_players {
+namespace config
+{
+    inline struct esp_players
+    {
         bool active = false;
         bool name = false;
         bool box = false;
@@ -16,12 +18,14 @@ namespace config {
 
         color_t box_color = color_t(255, 255, 255);
         color_t healthbar_color = color_t(255, 255, 255);
-    } esp_player;
+    } esp_player[5];
 
+    // above is a array of arraya
+    // using it because why not
+    // 0 - 5 goes from enemy, team, local, friends, cheaters
 
-	inline bool auto_save = true;
+    inline bool auto_save = true;
 
-	void load_config(std::string cfg);
-	void save_config(std::string out_string);
+    void load_config(std::string cfg);
+    void save_config(std::string out_string);
 }
-

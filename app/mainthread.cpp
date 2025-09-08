@@ -8,49 +8,50 @@ static bool close_from_dll = false;
 
 DWORD WINAPI main_thread(LPVOID lpParam)
 {
-    //GameUI is the last module to be loaded in tf2.
+    // GameUI is the last module to be loaded in tf2.
     crashlog.initialize();
     while (!GetModuleHandleA("GameUI.dll"))
         Sleep(100);
 
-    //alloc console
+    // alloc console
     AllocConsole();
-    FILE* fDummy;
+    FILE *fDummy;
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
     freopen_s(&fDummy, "CONOUT$", "w", stderr);
     freopen_s(&fDummy, "CONIN$", "r", stdin);
     SetConsoleTitleA("debug");
 
-    //grab interfaces
+    // grab interfaces
     ctx.tf2.get_interfaces();
 
-    //load every hook and hook it ofc ofc
+    // load every hook and hook it ofc ofc
     hookmgr.load_hooks();
 
     config::load_config("default");
 
-    //sleep to make sure we can tab back in time to hear it lol
+    // sleep to make sure we can tab back in time to hear it lol
     Sleep(2500);
 
-    //log that we loaded
+    // log that we loaded
     utilities::log("[hack] locked tf in");
 
-    //play audio saying that we loaded
-    ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_attached14.mp3"); //baller refrence to legendary cheat. 
+    // play audio saying that we loaded
+    ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_attached14.mp3"); // baller refrence to legendary cheat.
 
-    //we're done with our shit go sleep
-    while (!GetAsyncKeyState(VK_DELETE)) Sleep(100);
+    // we're done with our shit go sleep
+    while (!GetAsyncKeyState(VK_DELETE))
+        Sleep(100);
 
-    //auto-save
-    if(config::auto_save)
+    // auto-save
+    if (config::auto_save)
         config::save_config("default");
 
     close_from_dll = true;
 
-    //hehe
+    // hehe
     ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_hacked02.mp3");
 
-    //remove the fucking hook
+    // remove the fucking hook
     hookmgr.remove_hooks();
 
     FreeConsole();
@@ -65,15 +66,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     DisableThreadLibraryCalls(hinstDLL);
     if (fdwReason == DLL_PROCESS_ATTACH)
     {
-        if (const auto hMainThread = CreateThread(nullptr, 0, main_thread, hinstDLL, 0, nullptr)) {
+        if (const auto hMainThread = CreateThread(nullptr, 0, main_thread, hinstDLL, 0, nullptr))
+        {
             CloseHandle(hMainThread);
         }
     }
 
-    if (fdwReason == DLL_PROCESS_DETACH) {
-        if (!close_from_dll) {
-            //only do this if we arennt detaching too early, to not cause program crash due to access violation.
-            if(ctx.interfaces.engine)
+    if (fdwReason == DLL_PROCESS_DETACH)
+    {
+        if (!close_from_dll)
+        {
+            // only do this if we arennt detaching too early, to not cause program crash due to access violation.
+            if (ctx.interfaces.engine)
                 ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_hacked02.mp3");
             hookmgr.remove_hooks();
             crashlog.unload();
