@@ -20,9 +20,9 @@ namespace config
         color_t healthbar_color = color_t(255, 255, 255);
     } esp_player[5];
 
-    // above is a array of arraya
+    // above is a array of arrays
     // using it because why not
-    // 0 - 5 goes from enemy, team, local, friends, cheaters
+    // 0 - 4 goes from enemy, team, local, friends, cheaters
 
     inline bool auto_save = true;
 
