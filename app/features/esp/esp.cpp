@@ -45,10 +45,10 @@ void c_esp::draw_players()
 			continue;
 
 		player_info_t pi;
-		if (ctx.interfaces.engine->get_player_info(player->ent_idx(), &pi) && config::esp_player.name)
+		if (ctx.interfaces.engine->get_player_info(player->ent_idx(), &pi) && config::esp_player->name)
 			ctx.renderer.render_queue.string(FONTS::FONT_ESP, x + (w / 2), y, color_t::white(), horizontal, pi.name);
 
-		if (config::esp_player.box)
+		if (config::esp_player->box)
 			ctx.renderer.render_queue.rect(x, y, w, h, config::esp_player->box_color);
 	}
 }
