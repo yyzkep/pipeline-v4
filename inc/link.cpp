@@ -104,7 +104,20 @@ bool c_ctx::tf2_t::get_entity_bounds(base_entity* entity, int& x, int& y, int& w
     return true;
 }
 
-bool c_ctx::tf2_t::w2s(const Vector& origin, Vector& screen)
+color_t c_ctx::tf2_t::get_health_color(int health, int max_health)
+{
+    if (health > max_health)
+        return { 15, 150, 150, 255 };
+
+    const int nHP = std::max(0, std::min(health, max_health));
+
+    const unsigned int nR = static_cast<unsigned int>(std::min((510 * (max_health - nHP)) / max_health, 200));
+    const unsigned int nG = static_cast<unsigned int>(std::min((510 * nHP) / max_health, 200));
+
+    return { static_cast<byte>(nR), static_cast<byte>(nG), 0, 255 };
+}
+
+bool c_ctx::tf2_t::w2s(const vector_t& origin, vector_t& screen)
 {
     const auto screenTransform = [&origin, &screen, this]() -> bool
     {

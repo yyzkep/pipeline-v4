@@ -6,6 +6,7 @@
 #include <wrl.h>
 
 #include "../features/esp/esp.hpp"
+#include "..\features\config.hpp"
 
 template <typename T>
 using com_ptr = Microsoft::WRL::ComPtr<T>;
@@ -71,9 +72,34 @@ void __fastcall hkCHLCCreateMove(base_client_dll *rcx, int sequence_number, floa
 
 
     ctx.interfaces.pred->update(ctx.interfaces.state->m_nDeltaTick, ctx.interfaces.state->m_nDeltaTick > 0, ctx.interfaces.state->last_command_ack, ctx.interfaces.state->lastoutgoingcommand + ctx.interfaces.state->chokedcommands);
-
-
 }
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+LONG __stdcall hkWndProc(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
+    if (config::menu_open) {
+        ImGui_ImplWin32_WndProcHandler(window, msg, wparam, lparam);
+
+        if ((ImGui::GetIO().WantTextInput) && WM_KEYFIRST <= msg && msg <= WM_KEYLAST)
+        {
+            ctx.interfaces.input_system->reset_input_state();
+            return 1;
+        }
+
+        if (WM_MOUSEFIRST <= msg && msg <= WM_MOUSELAST)
+            return 1;
+    }
+
+    return CallWindowProcA(hooks.m_original, window, msg, wparam, lparam);
+}
+
+void __fastcall hkLockCursor(void* rcx) {
+    if (config::menu_open)
+        return ctx.interfaces.surface->lock_cursor();
+
+    hooks.m_lockcursor.fastcall<void>(rcx);
+}
+
 
 void c_hooks::init()
 {
@@ -99,12 +125,21 @@ void c_hooks::init()
         m_reset = safetyhook::create_inline(utilities::find_vfunc(d3d_device.Get(), 16), reinterpret_cast<void *>(hkReset));
     }
 
-    // the benefits of hooking IVEngineVGUI::Paint over FSN::FRAME_START is that paint is called way after frame start,
-    //  which is literally the start of the frame...
-    // paint gives us latest data that is isnt rendered in frame_start.
+    /*
+                    the benefits of hooking IVEngineVGUI::Paint over FSN::FRAME_START is that paint is called way after frame start,
+                    which is literally the start of the frame...
+                    paint gives us latest data that is isnt rendered in frame_start.
+    */
+
     m_paint = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.vgui, 14), reinterpret_cast<void *>(hkPaint));
 
     m_createmove = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.client, 21), reinterpret_cast<void*>(hkCHLCCreateMove));
+
+    m_lockcursor = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.surface, 62), reinterpret_cast<void*>(hkLockCursor));
+
+    m_window = FindWindowA("Valve001", nullptr);
+
+    m_original = reinterpret_cast<WNDPROC>(SetWindowLongPtr(m_window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(hkWndProc)));
 }
 
 void c_hooks::shutdown()
@@ -114,6 +149,9 @@ void c_hooks::shutdown()
     m_reset = {};
     m_paint = {};
     m_createmove = {};
+    m_lockcursor = {};
+
+    SetWindowLongPtr(m_window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(m_original));
 }
 
 void c_hook_manager::load_hooks()

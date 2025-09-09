@@ -5,6 +5,7 @@
 
 // forward declarations
 struct q_angle_t;
+struct vector_t;
 
 using matrix3x3_t = float[3][3];
 
@@ -122,6 +123,20 @@ struct matrix3x4_t
 
 	/// @returns: angles converted from this matrix
 	[[nodiscard]] q_angle_t ToAngles() const;
+
+	bool get_bone(vector_t& out, int bone = 0) {
+		if (bone < 0 || bone >= 128)
+			return false;
+
+		matrix3x4_t* bone_matrix = &this[bone];
+
+		if (!bone_matrix)
+			return false;
+
+		out = { bone_matrix->arrData[0][3], bone_matrix->arrData[1][3], bone_matrix->arrData[2][3] };
+
+		return true;
+	}
 
 	float arrData[3][4] = { };
 };

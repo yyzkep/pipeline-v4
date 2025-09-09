@@ -26,6 +26,8 @@ namespace config
 
     inline bool auto_save = true;
 
-    void load_config(std::string cfg);
-    void save_config(std::string out_string);
+    inline bool menu_open = false;
+
+    inline void load_config(std::string cfg);
+    inline void save_config(std::string out_string);
 }

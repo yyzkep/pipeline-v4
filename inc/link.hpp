@@ -107,6 +107,7 @@ public:
         void grab_view_matrix();
         bool w2s(const vector_t& origin, vector_t& screen);
         bool get_entity_bounds(base_entity* entity, int& x, int& y, int& w, int& h);
+        color_t get_health_color(int health, int max_health);
         D3DMATRIX w2s_matrix;
     } tf2;
 };

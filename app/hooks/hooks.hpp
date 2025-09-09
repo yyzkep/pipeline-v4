@@ -14,6 +14,10 @@ public:
     SafetyHookInline m_reset{};
     SafetyHookInline m_paint{};
     SafetyHookInline m_createmove{}; //todo
+    SafetyHookInline m_lockcursor{};
+
+    WNDPROC m_original = NULL;
+    HWND m_window = NULL;
 };
 
 inline c_hooks hooks = {};

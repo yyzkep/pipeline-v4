@@ -27,8 +27,6 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     // load every hook and hook it ofc ofc
     hookmgr.load_hooks();
 
-    config::load_config("default");
-
     // sleep to make sure we can tab back in time to hear it lol
     Sleep(2500);
 
@@ -39,12 +37,14 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     ctx.interfaces.engine->client_cmd_unrestricted("play vo/items/wheatley_sapper/wheatley_sapper_attached14.mp3"); // baller refrence to legendary cheat.
 
     // we're done with our shit go sleep
-    while (!GetAsyncKeyState(VK_DELETE))
-        Sleep(100);
+    while (!GetAsyncKeyState(VK_DELETE)) {
 
-    // auto-save
-    if (config::auto_save)
-        config::save_config("default");
+        //is it good doing it here? i cant tell
+        if (GetAsyncKeyState(VK_INSERT) & 1) config::menu_open = !config::menu_open;
+        
+        Sleep(100);
+    }
+       
 
     close_from_dll = true;
 
