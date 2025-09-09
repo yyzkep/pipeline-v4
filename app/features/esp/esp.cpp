@@ -4,7 +4,7 @@
 void c_esp::draw()
 {
 	// todo
-	if (!config::esp_player.active)
+	if (!config::esp_player->active)
 		return;
 
 	draw_entities();
