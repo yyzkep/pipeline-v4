@@ -63,6 +63,16 @@ void __fastcall hkPaint(void *rcx, paint_mode_t mode)
 void __fastcall hkCHLCCreateMove(base_client_dll *rcx, int sequence_number, float input_sample_frametime, bool active)
 {
     hooks.m_createmove.fastcall<void>(rcx, sequence_number, input_sample_frametime, active);
+
+    ctx.entities.local_player = ctx.interfaces.entity_list->get_client_entity(ctx.interfaces.engine->get_local_player())->as<base_player>();
+    ctx.entities.local_weapon = ctx.interfaces.entity_list->get_client_entity_from_handle(ctx.entities.local_player->active_weapon())->as<base_combat_weapon>();
+
+    user_cmd* cmd = &ctx.interfaces.input->get_cmds()[sequence_number % MULTIPLAYER_BACKUP];
+
+
+    ctx.interfaces.pred->update(ctx.interfaces.state->m_nDeltaTick, ctx.interfaces.state->m_nDeltaTick > 0, ctx.interfaces.state->last_command_ack, ctx.interfaces.state->lastoutgoingcommand + ctx.interfaces.state->chokedcommands);
+
+
 }
 
 void c_hooks::init()
@@ -93,6 +103,8 @@ void c_hooks::init()
     //  which is literally the start of the frame...
     // paint gives us latest data that is isnt rendered in frame_start.
     m_paint = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.vgui, 14), reinterpret_cast<void *>(hkPaint));
+
+    m_createmove = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.client, 21), reinterpret_cast<void*>(hkCHLCCreateMove));
 }
 
 void c_hooks::shutdown()
@@ -101,6 +113,7 @@ void c_hooks::shutdown()
     m_present = {};
     m_reset = {};
     m_paint = {};
+    m_createmove = {};
 }
 
 void c_hook_manager::load_hooks()
