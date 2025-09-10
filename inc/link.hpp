@@ -44,7 +44,6 @@
 #include <misc/freetype/imgui_freetype.h>
 #include <imgui_impl_win32.h>
 #include <freetype/freetype.h>
-#include <nlohmann/json.hpp>
 #include <safetyhook.hpp>
 
 //idk

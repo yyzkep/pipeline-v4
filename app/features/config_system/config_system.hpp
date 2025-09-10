@@ -1,91 +1,154 @@
 #pragma once
+#include <nlohmann/json.hpp>
+
+#include <vector>
+#include <typeinfo>
+#include <fstream>
+#include <iomanip>
+#include <filesystem>
 
 #include "color.hpp"
-#include <filesystem>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <nlohmann/json.hpp>
-#include <Windows.h>
 
-using json = nlohmann::json;
+//CREDITS: SEOwnedDE
+//why did i paste from seode?
+//to simply put it, i got fucking tired.
 
-struct bool_item_t {
-    bool* ptr{};
-    std::string category;
-    std::string name;
-    bool default_value{};
+namespace config
+{
+	struct cfg_var_initializer
+	{
+		const char* m_name{ nullptr };
+		void* m_ptr{ nullptr };
+		size_t m_type_hash{ 0 };
+		bool m_no_save{ false };
+	};
 
-    bool_item_t(bool* p, std::string c, std::string n, bool d);
+	inline std::vector<cfg_var_initializer> vars{};
 
-    void load(const json& j);
-    void save(json& j) const;
-    void reset();
-};
+	static void save(const std::filesystem::path& path)
+	{
+		std::ofstream output_file(path);
 
-struct int_item_t {
-    int* ptr{};
-    std::string category;
-    std::string name;
-    int default_value{};
+		if (!output_file.is_open())
+		{
+			return;
+		}
 
-    int_item_t(int* p, std::string c, std::string n, int d);
+		nlohmann::json j{};
 
-    void load(const json& j);
-    void save(json& j) const;
-    void reset();
-};
+		for (const auto& var : vars)
+		{
+			if (var.m_no_save)
+			{
+				continue;
+			}
 
-struct float_item_t {
-    float* ptr{};
-    std::string category;
-    std::string name;
-    float default_value{};
+			if (var.m_type_hash == typeid(bool).hash_code())
+			{
+				j[var.m_name] = *static_cast<bool*>(var.m_ptr);
+			}
 
-    float_item_t(float* p, std::string c, std::string n, float d);
+			if (var.m_type_hash == typeid(int).hash_code())
+			{
+				j[var.m_name] = *static_cast<int*>(var.m_ptr);
+			}
 
-    void load(const json& j);
-    void save(json& j) const;
-    void reset();
-};
+			if (var.m_type_hash == typeid(float).hash_code())
+			{
+				j[var.m_name] = *static_cast<float*>(var.m_ptr);
+			}
 
-struct color_item_t {
-    color_t* ptr{};
-    std::string category;
-    std::string name;
-    color_t default_value{};
+			if (var.m_type_hash == typeid(Color_t).hash_code())
+			{
+				auto clr{ *static_cast<color_t*>(var.m_ptr) };
 
-    color_item_t(color_t* p, std::string c, std::string n, color_t d);
+				j[var.m_name] = { clr.r, clr.g, clr.b, clr.a };
+			}
 
-    void load(const json& j);
-    void save(json& j) const;
-    void reset();
-};
+			if (var.m_type_hash == typeid(std::string).hash_code())
+			{
+				j[var.m_name] = *static_cast<std::string*>(var.m_ptr);
+			}
+		}
 
-class config_system {
-public:
-    std::vector<bool_item_t> bool_items;
-    std::vector<int_item_t> int_items;
-    std::vector<float_item_t> float_items;
-    std::vector<color_item_t> color_items;
+		output_file << std::setw(4) << j;
 
-    std::vector<std::string> config_files;
-    inline static const std::filesystem::path config_dir = "configs";
+		output_file.close();
+	}
 
-    // add items
-    void push_item(bool* ptr, const std::string& category, const std::string& name, bool default_value);
-    void push_item(int* ptr, const std::string& category, const std::string& name, int default_value);
-    void push_item(float* ptr, const std::string& category, const std::string& name, float default_value);
-    void push_item(color_t* ptr, const std::string& category, const std::string& name, color_t default_value);
+	static void load(const std::filesystem::path& path)
+	{
+		std::ifstream input_file(path);
 
-    // file operations
-    void read(const std::string& filename);
-    void save(const std::string& filename);
-    void remove(const std::string& filename);
-    void refresh();
-    void reset();
+		if (!input_file.is_open())
+		{
+			return;
+		}
 
-    // clipboard operations
-    void export_to_clipboard(const std::string& filename);
-    void import_from_clipboard(const std::string& filename);
-};
+		nlohmann::json j{};
+
+		input_file >> j;
+
+		for (const auto& var : vars)
+		{
+			if (var.m_no_save)
+			{
+				continue;
+			}
+
+			if (j.find(var.m_name) == j.end())
+			{
+				continue;
+			}
+
+			if (var.m_type_hash == typeid(bool).hash_code())
+			{
+				*static_cast<bool*>(var.m_ptr) = j[var.m_name];
+			}
+
+			if (var.m_type_hash == typeid(int).hash_code())
+			{
+				*static_cast<int*>(var.m_ptr) = j[var.m_name];
+			}
+
+			if (var.m_type_hash == typeid(float).hash_code())
+			{
+				*static_cast<float*>(var.m_ptr) = j[var.m_name];
+			}
+
+			if (var.m_type_hash == typeid(Color_t).hash_code())
+			{
+				color_t clr{ j[var.m_name][0], j[var.m_name][1], j[var.m_name][2], j[var.m_name][3] };
+
+				*static_cast<color_t*>(var.m_ptr) = clr;
+			}
+
+			if (var.m_type_hash == typeid(std::string).hash_code())
+			{
+				*static_cast<std::string*>(var.m_ptr) = j[var.m_name];
+			}
+		}
+
+		input_file.close();
+	}
+}
+
+#define CFGVAR(var, val) inline auto var{ val }; \
+namespace configvar_initializers\
+{\
+	inline auto var##_initializer = []()\
+	{\
+		config::vars.push_back(config::cfg_var_initializer{#var, &var, typeid(var).hash_code(), false });\
+		return true;\
+	}();\
+}
+
+#define CFGVAR_NOSAVE(var, val) inline auto var{ val }; \
+namespace configvar_initializers\
+{\
+	inline auto var##_initializer = []()\
+	{\
+		config::vars.push_back(config::cfg_var_initializer{#var, &var, typeid(var).hash_code(), true });\
+		return true;\
+	}();\
+}

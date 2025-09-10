@@ -6,7 +6,8 @@
 #include <wrl.h>
 
 #include "../features/esp/esp.hpp"
-#include "..\features\config.hpp"
+#include "..\features\menu\menu.hpp"
+#include "..\features\cfg.hpp"
 
 template <typename T>
 using com_ptr = Microsoft::WRL::ComPtr<T>;
@@ -23,8 +24,7 @@ HRESULT __fastcall hkPresent(IDirect3DDevice9 *pDevice, const RECT *pSource,
 
     ctx.renderer.state_manager.start();
 
-    ImGui::Begin("aaaa");
-    ImGui::End();
+    features::menu.draw_menu(); //yey
 
     auto *list = ImGui::GetBackgroundDrawList();
     ctx.renderer.render_queue.render(list);
@@ -77,7 +77,7 @@ void __fastcall hkCHLCCreateMove(base_client_dll *rcx, int sequence_number, floa
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LONG __stdcall hkWndProc(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
-    if (config::menu_open) {
+    if (cfg::menu_open) {
         ImGui_ImplWin32_WndProcHandler(window, msg, wparam, lparam);
 
         if ((ImGui::GetIO().WantTextInput) && WM_KEYFIRST <= msg && msg <= WM_KEYLAST)
@@ -94,7 +94,7 @@ LONG __stdcall hkWndProc(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
 }
 
 void __fastcall hkLockCursor(void* rcx) {
-    if (config::menu_open)
+    if (cfg::menu_open)
         return ctx.interfaces.surface->lock_cursor();
 
     hooks.m_lockcursor.fastcall<void>(rcx);

@@ -1,5 +1,73 @@
 #include "esp.hpp"
-#include "../config.hpp"
+#include "../cfg.hpp"
+
+// this is so ugly
+// i hate myself
+#define CFG_GETTER(name) \
+bool get_##name(player_type type) { \
+    switch (type) { \
+        case player_type::enemy:   return config::esp_enemy_##name; \
+        case player_type::team:    return config::esp_team_##name; \
+        case player_type::friends: return config::esp_friends_##name; \
+        case player_type::local:   return config::esp_local_##name; \
+        default: return false; \
+    } \
+}
+#define CFG_COLOR_GETTER(name) \
+color_t get_##name(player_type type) { \
+    switch(type) { \
+        case player_type::enemy:   return config::esp_enemy_##name; \
+        case player_type::team:    return config::esp_team_##name; \
+        case player_type::friends: return config::esp_friends_##name; \
+        case player_type::local:   return config::esp_local_##name; \
+        default: return color_t::white(); \
+    } \
+}
+CFG_GETTER(esp_active)
+CFG_GETTER(name)
+CFG_GETTER(box)
+CFG_GETTER(bones)
+CFG_GETTER(health_bar)
+CFG_GETTER(health_text)
+CFG_COLOR_GETTER(box_color)
+player_type get_player_category(base_player* player, int local_team)
+{
+    if (!player)
+        return player_type::count;
+
+    int player_team = player->team_num();
+    bool is_friend = player->steam_friend();
+
+    if (player == ctx.entities.local_player)
+        return player_type::local;
+
+    if (is_friend)
+        return player_type::friends;
+
+    if (player_team == local_team)
+        return player_type::team;
+
+    return player_type::enemy;
+}
+color_t get_health_color(base_player* player, int health, int max_health)
+{
+    player_type category = get_player_category(player, ctx.entities.local_player->team_num());
+
+    switch (category)
+    {
+    case player_type::enemy:
+        return config::esp_enemy_custom_health_color ? config::esp_enemy_health_color : ctx.tf2.get_health_color(health, max_health);
+    case player_type::team:
+        return config::esp_team_custom_health_color ? config::esp_team_health_color : ctx.tf2.get_health_color(health, max_health);
+    case player_type::friends:
+        return config::esp_friends_custom_health_color ? config::esp_friends_health_color : ctx.tf2.get_health_color(health, max_health);
+    case player_type::local:
+        return config::esp_local_custom_health_color ? config::esp_local_health_color : ctx.tf2.get_health_color(health, max_health);
+    default:
+        return ctx.tf2.get_health_color(health, max_health);
+    }
+}
+
 
 void c_esp::draw()
 {
@@ -21,108 +89,90 @@ void c_esp::draw_entities()
 
 void c_esp::draw_players()
 {
+    if (!ctx.interfaces.engine->is_in_game() || !ctx.interfaces.vgui->is_game_uivisible())
+        return;
+
     int x, y, w, h;
-    for (auto i = 0; i < ctx.interfaces.entity_list->get_highest_entity_index(); i++)
+
+    for (int i = 0; i < ctx.interfaces.entity_list->get_highest_entity_index(); i++)
     {
         client_entity* entity = ctx.interfaces.entity_list->get_client_entity(i);
         if (!entity || !entity->is_player() || entity->is_dormant())
             continue;
 
         base_player* player = entity->as<base_player>();
+        player_type type = get_player_category(player, ctx.entities.local_player->team_num());
 
-        int category = 0; 
-        if (player == ctx.entities.local_player) category = 2;
-        else if (player->team_num() == ctx.entities.local_player->team_num()) category = 1;
-        else if (player->steam_friend()) category = 3;
-        //4 would be cheater, but we dont have db yet so dont bother.
-
-        if (!config::esp_player[category].active)
+        if (!get_esp_active(type))
             continue;
 
         if (!ctx.tf2.get_entity_bounds(player, x, y, w, h))
             continue;
 
-        player_info_t pi;
-        if (ctx.interfaces.engine->get_player_info(player->ent_idx(), &pi) &&
-            config::esp_player[category].name)
-        {
-            ctx.renderer.render_queue.string(
-                FONTS::FONT_ESP,
-                x + (w / 2),
-                y,
-                color_t::white(),
-                horizontal,
-                pi.name
+        if (get_name(type)) {
+            player_info_t pi;
+            if (ctx.interfaces.engine->get_player_info(player->ent_idx(), &pi)) {
+                ctx.renderer.render_queue.string(
+                    FONTS::FONT_ESP,
+                    x + w / 2,
+                    y,
+                    color_t::white(),
+                    horizontal,
+                    pi.name
+                );
+            }
+        }
+
+        if (get_box(type)) {
+            ctx.renderer.render_queue.rect(
+                x, y, w, h,
+                get_box_color(type)
             );
         }
 
-        if (config::esp_player[category].box)
-            ctx.renderer.render_queue.rect(
-                x, y, w, h,
-                config::esp_player[category].box_color
-             );
+        if (get_bones(type)) {
+            const model_t* model = player->get_model();
+            if (!model) continue;
 
-        if (config::esp_player[category].bones) {
-			const model_t* model;
-			studiohdr_t* hdr;
-			mstudiobone_t* bone;
-			int           parent;
-			matrix3x4_t     matrix[128];
-			vector_t        bone_pos, parent_pos;
-			vector_t        bone_pos_screen, parent_pos_screen;
+            studiohdr_t* hdr = ctx.interfaces.model_info->get_studio_model(model);
+            if (!hdr) continue;
 
-			model = player->get_model();
-			if (!model)
-				return;
+            matrix3x4_t matrix[128];
+            if (!player->setup_bones(matrix, 128, BONE_USED_BY_ANYTHING, ctx.interfaces.globals->curtime))
+                continue;
 
-			hdr = ctx.interfaces.model_info->get_studio_model(model);
-			if (!hdr)
-				return;
+            for (int b = 0; b < hdr->numbones; ++b) {
+                mstudiobone_t* bone = hdr->get_bone(b);
+                if (!bone || !(bone->flags & BONE_USED_BY_HITBOX)) continue;
 
-			if (!player->setup_bones(matrix, 128, BONE_USED_BY_ANYTHING, ctx.interfaces.globals->curtime))
-				return;
+                int parent = bone->parent;
+                if (parent == -1) continue;
 
-			for (int i{ }; i < hdr->numbones; ++i) {
-				// get bone.
-				bone = hdr->get_bone(i);
-				if (!bone || !(bone->flags & BONE_USED_BY_HITBOX))
-					continue;
+                vector_t bone_pos, parent_pos;
+                vector_t bone_pos_screen, parent_pos_screen;
 
-				// get parent bone.
-				parent = bone->parent;
-				if (parent == -1)
-					continue;
+                matrix->get_bone(bone_pos, b);
+                matrix->get_bone(parent_pos, parent);
 
-
-				// resolve main bone and parent bone positions.
-				matrix->get_bone(bone_pos, i);
-				matrix->get_bone(parent_pos, parent);
-
-				color_t clr = color_t(255, 255, 255, 255);
-
-				if (ctx.tf2.w2s(bone_pos, bone_pos_screen) && ctx.tf2.w2s(parent_pos, parent_pos_screen)) {
-					ctx.renderer.render_queue.line(bone_pos_screen.x, bone_pos_screen.y, parent_pos_screen.x, parent_pos_screen.y, clr);
-				}
-			}
+                if (ctx.tf2.w2s(bone_pos, bone_pos_screen) && ctx.tf2.w2s(parent_pos, parent_pos_screen)) {
+                    ctx.renderer.render_queue.line(
+                        bone_pos_screen.x, bone_pos_screen.y,
+                        parent_pos_screen.x, parent_pos_screen.y,
+                        color_t::white()
+                    );
+                }
+            }
         }
 
-
-        //simple is good
-		if (config::esp_player[category].health_bar) {
-            --x;
-
+        if (get_health_bar(type)) {
             const int health = player->health();
             const int max_health = player->get_max_health();
-
-            const float fl_health = std::clamp<float>(health, 1.0f, max_health);
-            const float ratio = fl_health / max_health;
+            const float ratio = std::clamp<float>(health, 1.0f, max_health) / max_health;
 
             constexpr int n_width = 2;
-            const int n_height = h + (fl_health < max_health ? 2 : 1);
+            const int n_height = h + (health < max_health ? 2 : 1);
 
-            color_t clr_health = config::esp_player[category].custom_healthbar_color
-                ? config::esp_player[category].healthbar_color
-                : ctx.tf2.get_health_color(health, max_health);
+            color_t clr_health = get_health_color(player, health, max_health);
 
             ctx.renderer.render_queue.filled_rect(
                 x - n_width - 2,
@@ -139,26 +189,27 @@ void c_esp::draw_players()
                 static_cast<int>(n_height * ratio) + 1,
                 color_t::black()
             );
+        }
 
-            ++x;
-		}
-
-        if (config::esp_player[category].health_text) {
-            --x;
-            //variable reuse goes insane
+        if (get_health_text(type)) {
             const int health = player->health();
             const int max_health = player->get_max_health();
+            const float ratio = std::clamp<float>(health, 1.0f, max_health) / max_health;
+            const int n_height = h + (health < max_health ? 2 : 1);
 
-            const float fl_health = std::clamp<float>(health, 1.0f, max_health);
-            const float ratio = fl_health / max_health;
-
-            constexpr int n_width = 2;
-            const int n_height = h + (fl_health < max_health ? 2 : 1);
-            ctx.renderer.render_queue.string(FONTS::FONT_ESP, x, y + n_height - static_cast<int>(n_height * ratio), color_t(255, 255, 255), reverse_horizontal, std::format("%s", player->health()));
-            ++x;
+            ctx.renderer.render_queue.string(
+                FONTS::FONT_ESP,
+                x,
+                y + n_height - static_cast<int>(n_height * ratio),
+                color_t::white(),
+                reverse_horizontal,
+                std::format("%d", health)
+            );
         }
     }
 }
+
+
 
 void c_esp::draw_buildings()
 {

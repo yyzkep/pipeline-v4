@@ -119,6 +119,13 @@ struct color_t
         v = col[0];
     }
 
+    constexpr void to_float4(float out[4]) const {
+        out[0] = r / 255.f;
+        out[1] = g / 255.f;
+        out[2] = b / 255.f;
+        out[3] = a / 255.f;
+    }
+
 
     static constexpr color_t black(int a = 255) { return { 0, 0, 0, a }; }
     static constexpr color_t grey(int  a = 255) { return { 127, 127, 127, a }; }
