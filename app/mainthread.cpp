@@ -39,7 +39,7 @@ DWORD WINAPI main_thread(LPVOID lpParam)
     while (!GetAsyncKeyState(VK_DELETE)) {
 
         //is it good doing it here? i cant tell
-        if (GetAsyncKeyState(VK_INSERT) & 1) config::menu_open = !config::menu_open;
+        if (GetAsyncKeyState(VK_INSERT) & 1) cfg::menu_open = !cfg::menu_open;
         
         Sleep(100);
     }
