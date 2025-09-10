@@ -8,6 +8,7 @@
 #include "../features/esp/esp.hpp"
 #include "..\features\menu\menu.hpp"
 #include "..\features\cfg.hpp"
+#include <md5.hpp>
 
 template <typename T>
 using com_ptr = Microsoft::WRL::ComPtr<T>;
@@ -61,7 +62,14 @@ void __fastcall hkPaint(void *rcx, paint_mode_t mode)
     }
 }
 
-void __fastcall hkCHLCCreateMove(base_client_dll *rcx, int sequence_number, float input_sample_frametime, bool active)
+user_cmd* __fastcall hkGetUsrCmd(void* rcx, int sequence_number) {
+    return &ctx.interfaces.input->m_p_commands[sequence_number % MULTIPLAYER_BACKUP];
+}
+
+void __fastcall hkvalidateusrcmd(void* rcx, user_cmd* cmd, int sequence_number) {
+}
+
+void __fastcall hkCInputCreateMove(base_client_dll *rcx, int sequence_number, float input_sample_frametime, bool active)
 {
     hooks.m_createmove.fastcall<void>(rcx, sequence_number, input_sample_frametime, active);
 
@@ -69,9 +77,19 @@ void __fastcall hkCHLCCreateMove(base_client_dll *rcx, int sequence_number, floa
     ctx.entities.local_weapon = ctx.interfaces.entity_list->get_client_entity_from_handle(ctx.entities.local_player->active_weapon())->as<base_combat_weapon>();
 
     user_cmd* cmd = &ctx.interfaces.input->m_p_commands[sequence_number % MULTIPLAYER_BACKUP];
+    verified_user_cmd* verified = &ctx.interfaces.input->m_p_verified_commands[sequence_number % MULTIPLAYER_BACKUP];
+
+    if (!cmd)
+        return;
+
+    cmd->random_seed = MD5_PseudoRandom(sequence_number) & 0x7fffffff;
 
 
     ctx.interfaces.pred->update(ctx.interfaces.state->m_nDeltaTick, ctx.interfaces.state->m_nDeltaTick > 0, ctx.interfaces.state->last_command_ack, ctx.interfaces.state->lastoutgoingcommand + ctx.interfaces.state->chokedcommands);
+
+
+    verified->m_cmd = *cmd;
+    verified->m_crc = cmd->get_checksum();
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -133,9 +151,13 @@ void c_hooks::init()
 
     m_paint = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.vgui, 14), reinterpret_cast<void *>(hkPaint));
 
-    m_createmove = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.client, 21), reinterpret_cast<void*>(hkCHLCCreateMove));
+    m_createmove = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.input, 21), reinterpret_cast<void*>(hkCInputCreateMove));
 
     m_lockcursor = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.surface, 62), reinterpret_cast<void*>(hkLockCursor));
+
+    m_getusrcmd = safetyhook::create_inline(utilities::find_vfunc(ctx.interfaces.input, 8), reinterpret_cast<void*>(hkGetUsrCmd));
+
+    m_validateusrcmd = safetyhook::create_inline(utilities::find_signature<void*>("client.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B F9 41 8B D8"), reinterpret_cast<void*>(hkvalidateusrcmd));
 
     m_window = FindWindowA("Valve001", nullptr);
 
@@ -150,6 +172,8 @@ void c_hooks::shutdown()
     m_paint = {};
     m_createmove = {};
     m_lockcursor = {};
+    m_getusrcmd = {};
+    m_validateusrcmd = {};
 
     SetWindowLongPtr(m_window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(m_original));
 }

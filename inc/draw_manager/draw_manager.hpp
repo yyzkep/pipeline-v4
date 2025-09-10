@@ -10,6 +10,7 @@
 #include <imgui.h>
 #include "color.hpp"
 
+
 enum text_align {
     horizontal,
     vertical,

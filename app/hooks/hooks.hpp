@@ -15,6 +15,8 @@ public:
     SafetyHookInline m_paint{};
     SafetyHookInline m_createmove{}; //todo
     SafetyHookInline m_lockcursor{};
+    SafetyHookInline m_getusrcmd{};
+    SafetyHookInline m_validateusrcmd{};
 
     WNDPROC m_original = NULL;
     HWND m_window = NULL;

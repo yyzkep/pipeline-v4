@@ -35,14 +35,6 @@ struct CameraThirdData_t
 	vector_t	HullMax;
 };
 
-class verified_user_cmd
-{
-public:
-	user_cmd m_cmd;
-	CRC32_t m_crc;
-};
-
-
 enum ButtonCode_t
 {
 	BUTTON_CODE_INVALID = -1,
