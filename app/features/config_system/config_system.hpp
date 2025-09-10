@@ -58,7 +58,7 @@ namespace config
 				j[var.m_name] = *static_cast<float*>(var.m_ptr);
 			}
 
-			if (var.m_type_hash == typeid(Color_t).hash_code())
+			if (var.m_type_hash == typeid(color_t).hash_code())
 			{
 				auto clr{ *static_cast<color_t*>(var.m_ptr) };
 
@@ -116,7 +116,7 @@ namespace config
 				*static_cast<float*>(var.m_ptr) = j[var.m_name];
 			}
 
-			if (var.m_type_hash == typeid(Color_t).hash_code())
+			if (var.m_type_hash == typeid(color_t).hash_code())
 			{
 				color_t clr{ j[var.m_name][0], j[var.m_name][1], j[var.m_name][2], j[var.m_name][3] };
 

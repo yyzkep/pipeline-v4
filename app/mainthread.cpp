@@ -2,7 +2,6 @@
 #include "../inc/link.hpp"
 #include "hooks/hooks.hpp"
 #include "../inc/crashlog.hpp" // did this so that i dont have to attach a debugger.
-#include "features/config.hpp"
 
 static bool close_from_dll = false;
 
