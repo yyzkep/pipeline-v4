@@ -1,65 +1,91 @@
 #pragma once
-#include <string>
-#include <unordered_map>
-#include <fstream>
-#include <sstream>
+
+#include "color.hpp"
 #include <filesystem>
-#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <nlohmann/json.hpp>
+#include <Windows.h>
 
-// vibecoding is some insane shit
-// this config system might be a bit retarded.
-class c_config_system
-{
-public:
-    template <typename T>
-    void set(const std::string &key, const T &value);
+using json = nlohmann::json;
 
-    template <typename T>
-    T get(const std::string &key) const;
+struct bool_item_t {
+    bool* ptr{};
+    std::string category;
+    std::string name;
+    bool default_value{};
 
-    void save(const std::string &filename) const;
+    bool_item_t(bool* p, std::string c, std::string n, bool d);
 
-    void load(const std::string &filename);
-
-private:
-    std::unordered_map<std::string, std::string> data;
-
-    template <typename T>
-    static std::string to_string(const T &value)
-    {
-        std::ostringstream oss;
-        oss << value;
-        return oss.str();
-    }
-
-    template <typename T>
-    static T from_string(const std::string &str, const T &default_value)
-    {
-        std::istringstream iss(str);
-        T val{};
-        if (!(iss >> val))
-            return default_value;
-        return val;
-    }
-
-    static std::string to_string(const std::string &value) { return value; }
-    static std::string from_string(const std::string &str, const std::string &) { return str; }
+    void load(const json& j);
+    void save(json& j) const;
+    void reset();
 };
 
-namespace config
-{
-    inline c_config_system system = {};
+struct int_item_t {
+    int* ptr{};
+    std::string category;
+    std::string name;
+    int default_value{};
 
-    inline std::string config_dir = "configs";
+    int_item_t(int* p, std::string c, std::string n, int d);
 
-    inline void save_to_file(const std::string &name)
-    {
-        std::filesystem::create_directories(config_dir);
-        system.save(config_dir + "/" + name + ".cfg");
-    }
+    void load(const json& j);
+    void save(json& j) const;
+    void reset();
+};
 
-    inline void load_from_file(const std::string &name)
-    {
-        system.load(config_dir + "/" + name + ".cfg");
-    }
-}
+struct float_item_t {
+    float* ptr{};
+    std::string category;
+    std::string name;
+    float default_value{};
+
+    float_item_t(float* p, std::string c, std::string n, float d);
+
+    void load(const json& j);
+    void save(json& j) const;
+    void reset();
+};
+
+struct color_item_t {
+    color_t* ptr{};
+    std::string category;
+    std::string name;
+    color_t default_value{};
+
+    color_item_t(color_t* p, std::string c, std::string n, color_t d);
+
+    void load(const json& j);
+    void save(json& j) const;
+    void reset();
+};
+
+class config_system {
+public:
+    std::vector<bool_item_t> bool_items;
+    std::vector<int_item_t> int_items;
+    std::vector<float_item_t> float_items;
+    std::vector<color_item_t> color_items;
+
+    std::vector<std::string> config_files;
+    inline static const std::filesystem::path config_dir = "configs";
+
+    // add items
+    void push_item(bool* ptr, const std::string& category, const std::string& name, bool default_value);
+    void push_item(int* ptr, const std::string& category, const std::string& name, int default_value);
+    void push_item(float* ptr, const std::string& category, const std::string& name, float default_value);
+    void push_item(color_t* ptr, const std::string& category, const std::string& name, color_t default_value);
+
+    // file operations
+    void read(const std::string& filename);
+    void save(const std::string& filename);
+    void remove(const std::string& filename);
+    void refresh();
+    void reset();
+
+    // clipboard operations
+    void export_to_clipboard(const std::string& filename);
+    void import_from_clipboard(const std::string& filename);
+};

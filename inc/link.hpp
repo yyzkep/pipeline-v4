@@ -44,6 +44,7 @@
 #include <misc/freetype/imgui_freetype.h>
 #include <imgui_impl_win32.h>
 #include <freetype/freetype.h>
+#include <nlohmann/json.hpp>
 #include <safetyhook.hpp>
 
 //idk
@@ -52,6 +53,7 @@
 #include "color.hpp"
 #include "draw_manager/draw_manager.hpp"
 #include "utils.hpp"
+#include "fnv1a.hpp"
 
 //interfaces
 #include "sdk/valve/base_client_dll.hpp"

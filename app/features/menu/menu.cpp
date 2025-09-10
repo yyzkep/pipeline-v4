@@ -4,7 +4,7 @@
 //side note: i hate UI/UX.
 void c_menu::draw_menu()
 {
-
+	
 }
 
 void c_menu::aimbot_tab()

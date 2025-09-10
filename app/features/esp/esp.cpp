@@ -144,7 +144,18 @@ void c_esp::draw_players()
 		}
 
         if (config::esp_player[category].health_text) {
-            ctx.renderer.render_queue.string(FONTS::FONT_ESP, x, y - h /*i hope this is right*/, color_t(255, 255, 255), reverse_horizontal, std::format("%s", player->health()));
+            --x;
+            //variable reuse goes insane
+            const int health = player->health();
+            const int max_health = player->get_max_health();
+
+            const float fl_health = std::clamp<float>(health, 1.0f, max_health);
+            const float ratio = fl_health / max_health;
+
+            constexpr int n_width = 2;
+            const int n_height = h + (fl_health < max_health ? 2 : 1);
+            ctx.renderer.render_queue.string(FONTS::FONT_ESP, x, y + n_height - static_cast<int>(n_height * ratio), color_t(255, 255, 255), reverse_horizontal, std::format("%s", player->health()));
+            ++x;
         }
     }
 }

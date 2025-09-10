@@ -14,6 +14,7 @@ include(CPM.cmake)
 
 CPMAddPackage("gh:ocornut/imgui@1.91.4") # imgui
 CPMAddPackage("gh:cursey/safetyhook@0.6.6") # hooking
+CPMAddPackage("gh:nlohmann/json@3.12.0")
 CPMAddPackage(
   NAME freetype
   GITHUB_REPOSITORY freetype/freetype
@@ -94,5 +95,6 @@ target_compile_definitions(pipeline PRIVATE NOMINMAX) # solves autism with std::
 target_link_libraries(pipeline
   safetyhook::safetyhook 
   freetype
+  nlohmann_json::nlohmann_json
   d3d9
 )
