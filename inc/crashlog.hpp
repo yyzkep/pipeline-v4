@@ -109,7 +109,7 @@ static LONG APIENTRY exception_filter(PEXCEPTION_POINTERS exception_info) {
 	if (s_maddresses.contains(exception_info->ExceptionRecord->ExceptionAddress)
 		|| s_exceptions && GetAsyncKeyState(VK_SHIFT) & 0x8000 && GetAsyncKeyState(VK_RETURN) & 0x8000)
 		return EXCEPTION_EXECUTE_HANDLER;
-    s_maddresses[exception_info->ExceptionRecord->ExceptionAddress] = true;
+	s_maddresses[exception_info->ExceptionRecord->ExceptionAddress] = true;
 
 	std::stringstream ssErrorStream;
 	ssErrorStream << std::format("Error: {} (0x{:X}) ({})\n\n", sError, exception_info->ExceptionRecord->ExceptionCode, ++s_exceptions);
@@ -148,11 +148,10 @@ static LONG APIENTRY exception_filter(PEXCEPTION_POINTERS exception_info) {
 		}
 		break;
 	default:
-		ssErrorStream << exception_info->ExceptionRecord->ExceptionAddress;
 		ssErrorStream << "\n\n";
 	}
 
-	ssErrorStream << "Built @ " __DATE__ ", " __TIME__ "\n";
+	ssErrorStream << "Built @ " __DATE__ ", " __TIME__ ", \n";
 	ssErrorStream << "Ctrl + C to copy. \n";
 
 	switch (exception_info->ExceptionRecord->ExceptionCode)
@@ -160,7 +159,13 @@ static LONG APIENTRY exception_filter(PEXCEPTION_POINTERS exception_info) {
 	case STATUS_ACCESS_VIOLATION:
 		//case STATUS_STACK_OVERFLOW:
 		//case STATUS_HEAP_CORRUPTION:
-		MessageBoxA(0,"Unhandled exception", ssErrorStream.str().c_str(), MB_OK | MB_ICONERROR);
+        std::string errorMessage = ssErrorStream.str();
+        MessageBoxA(
+            NULL,                  
+            errorMessage.c_str(),      
+            "Unhandled exception",
+            MB_OK | MB_ICONERROR        
+        );
 	}
 
 	return EXCEPTION_EXECUTE_HANDLER;
