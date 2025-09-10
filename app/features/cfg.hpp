@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../config_system/config_system.hpp"
+#include "config_system/config_system.hpp"
 #include <array>
 
 enum class player_type {
