@@ -6,20 +6,20 @@
 #define CFG_GETTER(name) \
 bool get_##name(player_type type) { \
     switch (type) { \
-        case player_type::enemy:   return config::esp_enemy_##name; \
-        case player_type::team:    return config::esp_team_##name; \
-        case player_type::friends: return config::esp_friends_##name; \
-        case player_type::local:   return config::esp_local_##name; \
+        case player_type::enemy:   return cfg::esp_enemy_##name; \
+        case player_type::team:    return cfg::esp_team_##name; \
+        case player_type::friends: return cfg::esp_friends_##name; \
+        case player_type::local:   return cfg::esp_local_##name; \
         default: return false; \
     } \
 }
 #define CFG_COLOR_GETTER(name) \
 color_t get_##name(player_type type) { \
     switch(type) { \
-        case player_type::enemy:   return config::esp_enemy_##name; \
-        case player_type::team:    return config::esp_team_##name; \
-        case player_type::friends: return config::esp_friends_##name; \
-        case player_type::local:   return config::esp_local_##name; \
+        case player_type::enemy:   return cfg::esp_enemy_##name; \
+        case player_type::team:    return cfg::esp_team_##name; \
+        case player_type::friends: return cfg::esp_friends_##name; \
+        case player_type::local:   return cfg::esp_local_##name; \
         default: return color_t::white(); \
     } \
 }
@@ -56,13 +56,13 @@ color_t get_health_color(base_player* player, int health, int max_health)
     switch (category)
     {
     case player_type::enemy:
-        return config::esp_enemy_custom_health_color ? config::esp_enemy_health_color : ctx.tf2.get_health_color(health, max_health);
+        return cfg::esp_enemy_custom_health_color ? cfg::esp_enemy_health_color : ctx.tf2.get_health_color(health, max_health);
     case player_type::team:
-        return config::esp_team_custom_health_color ? config::esp_team_health_color : ctx.tf2.get_health_color(health, max_health);
+        return cfg::esp_team_custom_health_color ? cfg::esp_team_health_color : ctx.tf2.get_health_color(health, max_health);
     case player_type::friends:
-        return config::esp_friends_custom_health_color ? config::esp_friends_health_color : ctx.tf2.get_health_color(health, max_health);
+        return cfg::esp_friends_custom_health_color ? cfg::esp_friends_health_color : ctx.tf2.get_health_color(health, max_health);
     case player_type::local:
-        return config::esp_local_custom_health_color ? config::esp_local_health_color : ctx.tf2.get_health_color(health, max_health);
+        return cfg::esp_local_custom_health_color ? cfg::esp_local_health_color : ctx.tf2.get_health_color(health, max_health);
     default:
         return ctx.tf2.get_health_color(health, max_health);
     }
