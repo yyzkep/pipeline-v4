@@ -6,6 +6,7 @@
 //#include "Prediction.h"
 #include "surface.hpp"
 #include "pred.hpp"
+#include <checksumcrc.hpp>
 
 struct kbutton_t;
 
@@ -34,150 +35,13 @@ struct CameraThirdData_t
 	vector_t	HullMax;
 };
 
-enum class ESteamControllerPadIInput; //shut up clang
-class base_combat_weapon;
-class i_input
+class verified_user_cmd
 {
 public:
-	int cam_is_third_person()
-	{
-		return utilities::find_vfunc<31, int>(this);
-	}
-
-	void cam_to_third_person()
-	{
-		utilities::find_vfunc<32, void>(this);
-	}
-
-	void cam_to_first_person()
-	{
-		utilities::find_vfunc<33, void>(this);
-	}
-public:
-	typedef struct
-	{
-		unsigned int AxisFlags;
-		unsigned int AxisMap;
-		unsigned int ControlMap;
-	} joy_axis_t;
-
-	void		DescribeJoystickAxis(char const* axis, joy_axis_t* mapping);
-	char const* DescribeAxis(int index);
-
-	enum
-	{
-		GAME_AXIS_NONE = 0,
-		GAME_AXIS_FORWARD,
-		GAME_AXIS_PITCH,
-		GAME_AXIS_SIDE,
-		GAME_AXIS_YAW,
-		MAX_GAME_AXES
-	};
-
-	enum
-	{
-		CAM_COMMAND_NONE = 0,
-		CAM_COMMAND_TOTHIRDPERSON = 1,
-		CAM_COMMAND_TOFIRSTPERSON = 2
-	};
-
-	enum
-	{
-		MOUSE_ACCEL_THRESHHOLD1 = 0,	// if mouse moves > this many mickey's double it
-		MOUSE_ACCEL_THRESHHOLD2,		// if mouse moves > this many mickey's double it a second time
-		MOUSE_SPEED_FACTOR,				// 0 = disabled, 1 = threshold 1 enabled, 2 = threshold 2 enabled
-
-		NUM_MOUSE_PARAMS,
-	};
-
-	// Has the mouse been initialized?
-	bool		MouseInitialized;
-	// Is the mosue active?
-	bool		MouseActive;
-	// Has the joystick advanced initialization been run?
-	bool		JoystickAdvancedInit;
-	// Used to support hotplugging by reinitializing the advanced joystick system when we toggle between some/none joysticks.
-	bool		HadJoysticks;
-
-	// Accumulated mouse deltas
-	float		AccumulatedMouseXMovement;
-	float		AccumulatedMouseYMovement;
-	float		PreviousMouseXPosition;
-	float		PreviousMouseYPosition;
-	float		RemainingJoystickSampleTime;
-	float		KeyboardSampleTime;
-
-	// Flag to restore systemparameters when exiting
-	bool		RestoreSPI;
-	// Original mouse parameters
-	int			OrigMouseParms[NUM_MOUSE_PARAMS];
-	// Current mouse parameters.
-	int			NewMouseParms[NUM_MOUSE_PARAMS];
-	bool		CheckMouseParam[NUM_MOUSE_PARAMS];
-	// Are the parameters valid
-	bool		MouseParmsValid;
-	// Joystick Axis data
-	joy_axis_t Axes[6];
-	// List of queryable keys
-	void* Keys;
-
-	// Is the 3rd person camera using the mouse?
-	bool		CameraInterceptingMouse;
-	// Are we in 3rd person view?
-	bool		CameraInThirdPerson;
-	// Should we move view along with mouse?
-	bool		CameraMovingWithMouse;
-
-
-	// Is the camera in distance moving mode?
-	bool		CameraDistanceMove;
-	// Old and current mouse position readings.
-	int			CameraOldX;
-	int			CameraOldY;
-	int			CameraX;
-	int			CameraY;
-
-	// orthographic camera settings
-	bool		CameraIsOrthographic;
-
-	q_angle_t		PreviousViewAngles;
-
-	float		LastForwardMove;
-
-	float PreviousJoystickForward;
-	float PreviousJoystickSide;
-	float PreviousJoystickPitch;
-	float PreviousJoystickYaw;
-
-	// Steam controller stuff
-	int ControllerType[1 + 8];
-
-	GameActionSet_t PreferredGameActionSet;
-	GameActionSetFlags_t GameActionSetFlags;
-
-	bool SteamControllerGameActionsInitialized;
-
-	user_cmd* Commands;
-	void* VerifiedCommands;
-
-	CameraThirdData_t* CameraThirdData;
-
-	inline user_cmd* get_cmds()
-	{
-		return *reinterpret_cast<user_cmd**>(reinterpret_cast<uintptr_t>(this) + 0xFC);
-	}
-
+	user_cmd m_cmd;
+	CRC32_t m_crc;
 };
 
-enum AnalogCode_t
-{
-	ANALOG_CODE_INVALID = -1,
-	MOUSE_X = 0,
-	MOUSE_Y,
-	MOUSE_XY, // invoked when either x or y changes
-	MOUSE_WHEEL,
-	ANALOG_CODE_LAST = 10,
-};
 
 enum ButtonCode_t
 {
@@ -310,6 +174,79 @@ enum ButtonCode_t
 
 	MOUSE_LAST = MOUSE_WHEEL_DOWN,
 	MOUSE_COUNT = MOUSE_LAST - MOUSE_FIRST + 1,
+};
+
+enum class ESteamControllerPadIInput; //shut up clang
+class base_combat_weapon;
+class i_input
+{
+public:
+	virtual void init_all() = 0;
+	virtual void shutdown_all() = 0;
+	virtual int get_button_bits(int button) = 0;
+	virtual void create_move(int sequence_number, float input_sample_frametime, bool active) = 0;
+	virtual void extra_mouse_sample(float frametime, bool active) = 0;
+	virtual bool write_usercmd_delta_to_buffer(bf_write* buf, int from, int to, bool is_new_command) = 0;
+	virtual void encode_user_cmd_to_buffer(bf_write& buf, int slot) = 0;
+	virtual void decode_user_cmd_from_buffer(bf_read& buf, int slot) = 0;
+	virtual user_cmd* get_user_cmd(int sequence_number) = 0;
+	virtual void make_weapon_selection(void* weapon) = 0;
+	virtual float key_state(kbutton_t* key) = 0;
+	virtual int key_event(int event_code, ButtonCode_t keynum, const char* current_binding) = 0;
+	virtual kbutton_t* find_key(const char* name) = 0;
+	virtual void controller_commands() = 0;
+	virtual void joystick_advanced() = 0;
+	virtual void joystick_set_sample_time(float frametime) = 0;
+	virtual void in_set_sample_time(float frametime) = 0;
+	virtual void accumulate_mouse() = 0;
+	virtual void activate_mouse() = 0;
+	virtual void deactivate_mouse() = 0;
+	virtual void clear_states() = 0;
+	virtual float get_look_spring() = 0;
+	virtual void get_fullscreen_mouse_pos(int* mx, int* my, int* unclamped_x = 0, int* unclamped_y = 0) = 0;
+	virtual void set_fullscreen_mouse_pos(int mx, int my) = 0;
+	virtual void reset_mouse() = 0;
+	virtual float get_last_forward_move() = 0;
+	virtual float joystick_get_forward() = 0;
+	virtual float joystick_get_side() = 0;
+	virtual float joystick_get_pitch() = 0;
+	virtual float joystick_get_yaw() = 0;
+	virtual void cam_think() = 0;
+	virtual int cam_is_third_person() = 0;
+	virtual void cam_to_third_person() = 0;
+	virtual void cam_to_first_person() = 0;
+	virtual void cam_start_mouse_move() = 0;
+	virtual void cam_end_mouse_move() = 0;
+	virtual void cam_start_distance() = 0;
+	virtual void cam_end_distance() = 0;
+	virtual int cam_intercepting_mouse() = 0;
+	virtual void cam_to_orthographic() = 0;
+	virtual bool cam_is_orthographic() const = 0;
+	virtual void cam_orthographic_size(float& w, float& h) const = 0;
+	virtual void set_preferred_game_action_set(GameActionSet_t action_set) = 0;
+	virtual GameActionSet_t get_preferred_game_action_set() = 0;
+	virtual void set_game_action_set_flags(GameActionSetFlags_t action_set_flags) = 0;
+	virtual void level_init() = 0;
+	virtual void clear_input_button(int bits) = 0;
+	virtual void cam_set_camera_third_data(CameraThirdData_t* camera_data, const q_angle_t& camera_offset) = 0;
+	virtual void cam_camera_third_think() = 0;
+	virtual bool enable_joystick_mode() = 0;
+	virtual bool is_steam_controller_active() = 0;
+
+public:
+	byte pad0[256];
+	user_cmd* m_p_commands;
+	verified_user_cmd* m_p_verified_commands;
+};
+
+enum AnalogCode_t
+{
+	ANALOG_CODE_INVALID = -1,
+	MOUSE_X = 0,
+	MOUSE_Y,
+	MOUSE_XY, // invoked when either x or y changes
+	MOUSE_WHEEL,
+	ANALOG_CODE_LAST = 10,
 };
 
 class i_input_system /*: public IAppSystem*/

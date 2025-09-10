@@ -68,7 +68,7 @@ void __fastcall hkCHLCCreateMove(base_client_dll *rcx, int sequence_number, floa
     ctx.entities.local_player = ctx.interfaces.entity_list->get_client_entity(ctx.interfaces.engine->get_local_player())->as<base_player>();
     ctx.entities.local_weapon = ctx.interfaces.entity_list->get_client_entity_from_handle(ctx.entities.local_player->active_weapon())->as<base_combat_weapon>();
 
-    user_cmd* cmd = &ctx.interfaces.input->get_cmds()[sequence_number % MULTIPLAYER_BACKUP];
+    user_cmd* cmd = &ctx.interfaces.input->m_p_commands[sequence_number % MULTIPLAYER_BACKUP];
 
 
     ctx.interfaces.pred->update(ctx.interfaces.state->m_nDeltaTick, ctx.interfaces.state->m_nDeltaTick > 0, ctx.interfaces.state->last_command_ack, ctx.interfaces.state->lastoutgoingcommand + ctx.interfaces.state->chokedcommands);
